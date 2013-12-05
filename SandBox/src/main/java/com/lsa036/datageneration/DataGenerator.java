@@ -3,7 +3,7 @@ package com.lsa036.datageneration;
 public class DataGenerator implements Runnable
 {
 
-  private int plisns = 30000;
+  private int plisns = 10000;
 
   @Override
   public void run()
@@ -11,6 +11,7 @@ public class DataGenerator implements Runnable
     generatePlisnBlocks(1, 1, generatePlisn(1));
   }
 
+  
   private void generatePlisnBlocks(int plisn, int depth, final String nha)
   {
     if (plisn > plisns)
@@ -18,7 +19,7 @@ public class DataGenerator implements Runnable
       return;
     }
 
-    if (depth > 5)
+    if (depth < 5)
     {
       depth = 1;
     }
@@ -27,7 +28,7 @@ public class DataGenerator implements Runnable
     {
 
       final String cardA = generateCardA(plisn);
-      final String cardC = generateCardC(plisn, generatePlisn(plisn - (i-1)));
+      final String cardC = generateCardC(plisn, generatePlisn(plisn - (i - 1)));
       final String cardD = generateCardD(plisn);
       final String cardH = generateCardH(plisn);
 
@@ -51,7 +52,7 @@ public class DataGenerator implements Runnable
   private String generateCardA(int i)
   {
     final StringBuilder sb = new StringBuilder();
-    insertCardCommonData(sb, i);
+    openCard(sb, i);
     if (1 == i)
     {
       sb.append("A");
@@ -67,36 +68,33 @@ public class DataGenerator implements Runnable
     }
 
     final String str = sb.toString();
-    final String cardLine = String.format("%s% " + (80 - str.length()) + "d", str, i % 2);
-    return cardLine.substring(0, 77) + "01A";
+    return closeCard(str, "01A");
   }
 
   private String generateCardC(int i, final String nhaPlisn)
   {
     final StringBuilder sb = new StringBuilder();
-    insertCardCommonData(sb, i);
+    openCard(sb, i);
 
     sb.append(nhaPlisn);
 
     final String str = sb.toString();
-    final String cardLine = String.format("%s% " + (80 - str.length()) + "d", str, i % 2);
-    return cardLine.substring(0, 77) + "01C";
+    return closeCard(str, "01C");
   }
 
   private String generateCardD(int i)
   {
     final StringBuilder sb = new StringBuilder();
-    insertCardCommonData(sb, i);
+    openCard(sb, i);
     sb.append("UOC,");
     final String str = sb.toString();
-    final String cardLine = String.format("%s% " + (80 - str.length()) + "d", str, i % 2);
-    return cardLine.substring(0, 77) + "01D";
+    return closeCard(str, "01D");
   }
 
   private String generateCardH(int i)
   {
     final StringBuilder sb = new StringBuilder();
-    insertCardCommonData(sb, i);
+    openCard(sb, i);
     if (1 == i)
     {
       sb.append("EILCN");
@@ -112,15 +110,20 @@ public class DataGenerator implements Runnable
 
     card = card.substring(0, 29) + " 00";
 
-    final String cardLine = String.format("%s% " + (80 - card.length()) + "d", card, i % 2);
-    return cardLine.substring(0, 77) + "01H";
+    return closeCard(card, "01H");
   }
 
-  private void insertCardCommonData(final StringBuilder sb, int i)
+  private void openCard(final StringBuilder sb, int i)
   {
     sb.append("PCCN56");
     sb.append(String.format("%0" + 4 + "d", i));
     sb.append("  ");
+  }
+
+  private String closeCard(final String str, final String end)
+  {
+    final String cardLine = String.format("%s% " + (80 - str.length()) + "d", str, 0);
+    return cardLine.substring(0, 77) + end;
   }
 
   private String generatePlisn(int i)
