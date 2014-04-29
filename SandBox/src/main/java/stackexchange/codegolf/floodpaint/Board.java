@@ -41,21 +41,14 @@ public class Board {
     return boardState.get(n);
   }
   
-  public int solve(){
-    final Set<Node> remaining = new HashSet<Node>(boardState.values());
-    
-    final int ptr = tileCount/2;
-    final Coordinate center = new Coordinate(ptr, ptr);
-    
-    final Solver solver = new Solver(remaining, boardState.get(center));
-    
-    while(solver.hasMoreElements()){
-      solver.flood();
-      System.out.println(this);
-    }
-    return -1;
+  public Node getCenterNode(){
+    int ptr = tileCount / 2;
+    return getNode(new Coordinate(ptr, ptr));
   }
-  
+
+  public Map<Coordinate, Node> getBoardState() {
+    return boardState;
+  }
    
   public String toString(){
     final StringBuilder sb = new StringBuilder();

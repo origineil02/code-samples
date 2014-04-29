@@ -10,12 +10,23 @@ public class Node {
   private Node east;
   private Node west;
   
+  private Node accessor;
+  
   private Coordinate c;
   private int value;
+  private boolean isCenter;
   
   public Node(final Coordinate c, int v){
     this.c = c;
     this.value = v;
+  }
+
+  public boolean isCenter() {
+    return isCenter;
+  }
+
+  public void setIsCenter(boolean isCenter) {
+    this.isCenter = isCenter;
   }
   
   public Coordinate getCoordinate(){
@@ -59,24 +70,18 @@ public class Node {
     for(Direction d : Direction.values()){
       sb.append(" { "+ d +" : " + getNeighbor(d) + " } ");
     }
+    
+   
+    
     return sb.toString();
   }
-  
-  public Set<Node> getNodes(){
-    final Set<Node> nodes = new HashSet<Node>();
     
-    for(Direction d : Direction.values()){
-      nodes.add(getNeighbor(d));
-    }
-    return nodes;
-  }
-  
-  public Set<Node> getLikeValuedNeighbors(Direction d){
-    return neighbors(true, d);
+  public Set<Node> getLikeValuedNeighbors(){
+    return  neighbors(true, null);
   }
   
   public Set<Node> getNeighbors(Direction d){
-    return neighbors(false, d);
+    return  neighbors(false, d) ;
   }
   
   public Set<Node> getNeighbors(){
@@ -96,11 +101,16 @@ public class Node {
       if(null != neighbor && (!likeValued || likeValued && null!=neighbor && neighbor.value == this.value))
       { 
         nodes.add(neighbor);
+        neighbor.accessor = this;
       }
     }
     return nodes;
   }
-  public Set<Node> getLikeValuedNodes(){
-    return neighbors(true, null);
+
+  public Node getAccessor() {
+    return accessor;
+  }
+  public void clearAccessor(){
+    this.accessor = null;
   }
 }

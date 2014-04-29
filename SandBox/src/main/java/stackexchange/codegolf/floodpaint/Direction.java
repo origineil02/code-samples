@@ -27,25 +27,25 @@ public enum Direction {
       return null;
     }
     
-    public static Direction evaluateFromDirection(final Node from, final Node to){
-      final Coordinate fc = from.getCoordinate();
-      final Coordinate tc = to.getCoordinate();
-      
-      if(fc.row == tc.row){
-         if(fc.column == tc.column -1){
-           return Direction.E;
-         }
-         return Direction.W;
-      }
-      else
-      {
-        if(fc.row == tc.row - 1){
-          return Direction.N;
-        }
-        
-        return Direction.S;
-      }
-    }
+//    public static Direction evaluateFromDirection(final Node from, final Node to){
+//      final Coordinate fc = from.getCoordinate();
+//      final Coordinate tc = to.getCoordinate();
+//      
+//      if(fc.row == tc.row){
+//         if(fc.column == tc.column -1){
+//           return Direction.E;
+//         }
+//         return Direction.W;
+//      }
+//      else
+//      {
+//        if(fc.row == tc.row - 1){
+//          return Direction.N;
+//        }
+//        
+//        return Direction.S;
+//      }
+//    }
  
      public static Direction inverse(final Direction d){
       switch(d){

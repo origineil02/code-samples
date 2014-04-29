@@ -1,6 +1,8 @@
 package stackexchange.codegolf.floodpaint;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Solver {
@@ -9,36 +11,40 @@ public class Solver {
   private final Node center;
   private Set<Node> targets;
   private final Set<Node> paintable;
+  private final Board b;
+  private final List<Integer> input;
 
-  public Solver(Set<Node> remaining, final Node n) {
-    this.remaining = remaining;
-    this.center = n;
+  public Solver(final Board b) {
+    this.remaining = new HashSet<Node>(b.getBoardState().values());
+    this.center = b.getCenterNode();
     this.paintable = new HashSet<Node>();
+    this.b = b;
+    this.input = new ArrayList<Integer>();
+  }
+
+  public String solve() {
+    while (hasMoreElements()) {
+      flood();
+    }
+    return input.toString();
   }
 
   public void flood() {
 
-//       final Map<Integer, List<Node>> map = new HashMap<Integer, List<Node>>();
     final Data data = new Data();
 
     if (remaining.contains(center)) {
-      targets = center.getNodes();
+      targets = center.getNeighbors();
       remaining.remove(center);
       paintable.add(center);
     }
 
     consolidateCandidates(data, targets);
 
-
-    System.out.println(data.getTarget());
-
-    for (Node n : paintable) {
-      n.paint(data.getTarget());
-    }
-
+    input.add(data.getTarget());
     paintable.addAll(data.targets());
     remaining.removeAll(data.targets());
-
+    data.setPainted(paintable);
     targets = data.potentialTargets();
   }
 
@@ -48,8 +54,12 @@ public class Solver {
       if (null == n) {
         continue;
       }
-      //data.addNode(n);
-      consolidateCandidates(data, n.getLikeValuedNodes());
+      data.addNode(n);
+      
+      Set<Node> children =  data.candidates(n);
+      if(!children.isEmpty()){
+        consolidateCandidates(data, children);
+      }
     }
   }
 
