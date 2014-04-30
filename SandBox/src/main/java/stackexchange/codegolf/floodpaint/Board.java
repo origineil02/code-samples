@@ -1,14 +1,8 @@
- 
 package stackexchange.codegolf.floodpaint;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
- 
 public class Board {
   private Map<Coordinate, Node> boardState;
   private int tileCount;

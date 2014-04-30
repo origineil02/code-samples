@@ -9,12 +9,7 @@ public class Data {
 
   final Map<Integer, Set<Node>> map = new HashMap<Integer, Set<Node>>();
   private int largest = 1;
-  private Set<Node> painted;
-  
-  public void setPainted(Set<Node> painted) {
-    this.painted = painted;
-  }
-  
+   
   public boolean containsAll(Integer target, Set<Node> children){
     return map.containsKey(target) && map.get(target).containsAll(children);
   }
@@ -46,7 +41,7 @@ public class Data {
     return  map.get(largest);
   }
 
-  public Set<Node> potentialTargets() {
+  public Set<Node> potentialTargets(Set<Node> painted) {
     final Set<Node> leaves = new HashSet<Node>();
 
     final Set<Node> theRest = new HashSet();
@@ -56,27 +51,22 @@ public class Data {
     theRest.removeAll(targets());
     leaves.addAll(theRest);
     
-    traverse(targets(), leaves);
+    traverse(targets(), leaves, painted);
     
     return leaves;
   }
 
-  private void traverse(Set<Node> nodes, Set<Node> leaves) {
+  private void traverse(Set<Node> nodes, Set<Node> leaves, Set<Node> painted) {
     for (Node n : nodes) {
 
-//      Direction exclude =  Direction.evaluateFromDirection(n.getAccessor(), n);
       Set<Node> children = n.getLikeValuedNeighbors();
-
       children.removeAll(painted);
       
       if (!children.isEmpty()) {
-        //System.out.println("I can do more");
-//          System.out.println(n + " | " + children);
-          traverse(children, leaves);
+          traverse(children, leaves, painted);
       } else {
         Set<Node> set = n.getNeighbors();
         set.removeAll(painted);
-//        System.out.println("HERE: " + set);
         leaves.addAll(set);
       }
     }

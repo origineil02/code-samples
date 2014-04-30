@@ -71,31 +71,21 @@ public class Node {
       sb.append(" { "+ d +" : " + getNeighbor(d) + " } ");
     }
     
-   
-    
     return sb.toString();
   }
     
   public Set<Node> getLikeValuedNeighbors(){
-    return  neighbors(true, null);
-  }
-  
-  public Set<Node> getNeighbors(Direction d){
-    return  neighbors(false, d) ;
+    return  neighbors(true);
   }
   
   public Set<Node> getNeighbors(){
-    return neighbors(false, null);
+    return neighbors(false);
   }
   
-  private Set<Node> neighbors(boolean likeValued, Direction excluding){
+  private Set<Node> neighbors(boolean likeValued){
      final Set<Node> nodes = new HashSet<Node>();
     
     for(Direction d : Direction.values()){
-      
-      if(null != excluding && d.equals(excluding)){
-        continue;
-      }
       
       final Node neighbor = getNeighbor(d);
       if(null != neighbor && (!likeValued || likeValued && null!=neighbor && neighbor.value == this.value))

@@ -8,44 +8,36 @@ import java.util.Set;
 public class Solver {
 
   private final Set<Node> remaining;
-  private final Node center;
   private Set<Node> targets;
   private final Set<Node> paintable;
-  private final Board b;
   private final List<Integer> input;
 
   public Solver(final Board b) {
     this.remaining = new HashSet<Node>(b.getBoardState().values());
-    this.center = b.getCenterNode();
     this.paintable = new HashSet<Node>();
-    this.b = b;
+    this.paintable.add(b.getCenterNode());
+    this.remaining.remove(b.getCenterNode());
     this.input = new ArrayList<Integer>();
+    this.targets = b.getCenterNode().getNeighbors();
   }
 
-  public String solve() {
+  public List<Integer> solve() {
     while (hasMoreElements()) {
       flood();
     }
-    return input.toString();
+    return input;
   }
 
   public void flood() {
 
     final Data data = new Data();
 
-    if (remaining.contains(center)) {
-      targets = center.getNeighbors();
-      remaining.remove(center);
-      paintable.add(center);
-    }
-
     consolidateCandidates(data, targets);
 
     input.add(data.getTarget());
     paintable.addAll(data.targets());
     remaining.removeAll(data.targets());
-    data.setPainted(paintable);
-    targets = data.potentialTargets();
+    targets = data.potentialTargets(paintable);
   }
 
   private void consolidateCandidates(Data data, Set<Node> neighbors) {
@@ -64,7 +56,6 @@ public class Solver {
   }
 
   public boolean hasMoreElements() {
-//      return false;
     return !remaining.isEmpty();
   }
 }

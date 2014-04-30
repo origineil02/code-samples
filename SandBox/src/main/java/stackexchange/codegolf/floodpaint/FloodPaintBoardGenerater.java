@@ -1,11 +1,66 @@
 package stackexchange.codegolf.floodpaint;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.List;
 import java.util.Scanner;
 
 public class FloodPaintBoardGenerater implements Runnable {
 
   public void run() {
+    runLocal();
+  }
+  
+  private void runFromFile(){
+    try{
+       
+    final Scanner scanner = new Scanner(new File("floodtest"));
+    int line =0;
+    
+      Board board = new Board(19);
+    int total = 0;
+    int puzzle = 1;
+    while(scanner.hasNextLine()){
+      
+      final String row = scanner.nextLine();
+      
+      //System.out.println(row);
+      //System.out.println(row.charAt(0));
+      
+      
+      if(row.trim().isEmpty()){
+        //System.out.println(board);
+        final Solver solver = new Solver(board);
+        
+        final List<Integer> sequence = solver.solve(); 
+        line = 0;
+        board = new Board(19);
+        total += sequence.size();
+        System.out.println(total);
+        System.out.println("Puzzle: " + ++puzzle);
+         
+      }
+      else
+      {
+        for (int column = 0; column < row.length(); ++column) {
+        final Coordinate c = new Coordinate(line, column);
+         // System.out.println(c);
+        final int value = Integer.parseInt(String.valueOf(row.charAt(column)));
 
+          //System.out.println("Value " + value + " ");
+        final Node n = new Node(c, value);
+        board.addNode(n);
+        
+           
+      }
+        //System.out.println("");
+        line++;
+      }
+    }
+    }catch(Exception ex){ex.printStackTrace();}
+  }
+  
+  private void runLocal(){
     final Initializer init = new Initializer();
     final Scanner scanner = new Scanner(init.stuff.replaceAll(" ", ""));
 
