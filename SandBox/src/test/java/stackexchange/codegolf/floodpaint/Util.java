@@ -2,13 +2,11 @@ package stackexchange.codegolf.floodpaint;
 
 
 import java.util.StringTokenizer;
-import org.junit.Ignore;
 
-@Ignore
 public class Util {
 
     
-public void solve(String str){     
+public static void solve(String str){     
      final StringTokenizer rows = new StringTokenizer(str,"\n");
      
      final Board b = new Board(19);
@@ -24,9 +22,12 @@ public void solve(String str){
        }
        rowIndex++;
      }
-     System.out.println(b.asValues());
+     //System.out.println(b.asValues());
  
      new Solver(b).solve();
+     System.out.println(
+     SolutionRepository.getInstance().bestAnswer().toString().replace("[", "").replace("]", "").replaceAll(",", "").replaceAll(" ", ""));
+     SolutionRepository.getInstance().reset();
   }
   
    
