@@ -8,7 +8,8 @@ import java.util.Scanner;
 public class FloodPaintBoardGenerater implements Runnable {
 
   public void run() {
-    runLocal();
+    //runLocal();
+    runFromFile();
   }
   
   private void runFromFile(){
@@ -30,15 +31,23 @@ public class FloodPaintBoardGenerater implements Runnable {
       
       if(row.trim().isEmpty()){
         //System.out.println(board);
+        System.out.println(String.format("Puzzle: %d \n %s", ++puzzle, board.asValues()));
         final Solver solver = new Solver(board);
         
-        final List<Integer> sequence = solver.solve(); 
+        solver.solve();
+        SolutionRepository.getInstance().debug();
+        List<Integer> inputs = SolutionRepository.getInstance().bestAnswer();
+        
+        
+        System.out.println(total);
+        SolutionRepository.getInstance().reset();
+        
         line = 0;
         board = new Board(19);
-        total += sequence.size();
-        System.out.println(total);
-        System.out.println("Puzzle: " + ++puzzle);
+        total += inputs.size();
          
+        Thread.sleep(1000);
+       
       }
       else
       {
@@ -81,10 +90,10 @@ public class FloodPaintBoardGenerater implements Runnable {
       line++;
     }
 
-    System.out.println(b);
+    System.out.println(b.asValues());
 
     final Solver solver = new Solver(b);
-    System.out.println(solver.solve());
+    solver.solve();
   }
 
   public class Initializer {

@@ -21,6 +21,21 @@ public class Node {
     this.value = v;
   }
 
+  public static Node clone(Node source){
+    if(null == source){
+      return null;
+    }
+    
+    final Node n = new Node(source.c, source.value);
+    n.north = Node.clone(source.north);
+    n.south = Node.clone(source.south);
+    n.east = Node.clone(source.east);
+    n.west = Node.clone(source.west);
+    
+    n.accessor = Node.clone(source.accessor);
+    
+    return n;
+  }
   public boolean isCenter() {
     return isCenter;
   }
@@ -74,6 +89,22 @@ public class Node {
     return sb.toString();
   }
     
+  public Set<Node> getAllLikeValuedNeighbors(){
+    final Set<Node> nodes = new HashSet<Node>();
+    recursiveLikeValuedNeighbors(getLikeValuedNeighbors(), nodes, new HashSet<Node>());
+    return  nodes;
+  }
+  
+  private void recursiveLikeValuedNeighbors(Set<Node> nodes, Set<Node> repo, Set<Node> alreadySeen){
+    for(Node n : nodes){
+      if(!alreadySeen.contains(n)){
+        alreadySeen.add(n);
+        repo.add(n);
+        recursiveLikeValuedNeighbors(n.getLikeValuedNeighbors(), repo, alreadySeen);
+      }
+    }
+  }
+  
   public Set<Node> getLikeValuedNeighbors(){
     return  neighbors(true);
   }
