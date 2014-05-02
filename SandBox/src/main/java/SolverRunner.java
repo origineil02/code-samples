@@ -16,7 +16,7 @@ public class SolverRunner implements Runnable{
      
       try{
       final FileWriter writer = new FileWriter(new File("SomeSolutions.txt"));
-      for (int i = 1840; i <= 10000; i++) {
+      for (int i = 5317; i <= 100000; i++) {
       final String str = bundle.getString("Puzzle"+i);
       process(str);
         writer.write("Puzzle"+i+ "=" + SolutionRepository.getInstance().bestAnswer());
@@ -25,7 +25,7 @@ public class SolverRunner implements Runnable{
         SolutionRepository.getInstance().reset();
       
     }
-      }catch(Exception ex){}
+      }catch(Exception ex){ex.printStackTrace();}
   }
  
   private void process(String str){

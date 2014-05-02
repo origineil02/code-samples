@@ -15,7 +15,7 @@ public class SolutionsVerification extends TestCase {
     final ResourceBundle puzzles = ResourceBundle.getBundle("stackexchange.codegolf.floodpaint.PuzzlesBundle");
     final ResourceBundle solutions = ResourceBundle.getBundle("stackexchange.codegolf.floodpaint.SolutionsBundle");
      
-      for (int i = 1; i <= 1840; i++) {
+      for (int i = 1; i <= 5316; i++) {
         final String puzzle = puzzles.getString("Puzzle"+i);
         final String solution = solutions.getString("Puzzle"+i);
         char[] board = boardGen(puzzle.replaceAll("\"", ""));
