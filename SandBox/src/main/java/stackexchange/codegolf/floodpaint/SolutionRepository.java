@@ -96,11 +96,11 @@ public class SolutionRepository {
     }
   }
 
-   List<Integer> bestAnswer() {
+   public List<Integer> bestAnswer() {
     return solutions.entrySet().iterator().next().getValue().get(0);
   }
    
-   void reset(){
+  public void reset(){
      instance = new SolutionRepository();
    }
 }

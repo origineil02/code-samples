@@ -46,7 +46,7 @@ public class FloodPaintBoardGenerater implements Runnable {
         board = new Board(19);
         total += inputs.size();
          
-        Thread.sleep(1000);
+        Thread.sleep(250);
        
       }
       else
