@@ -5,6 +5,8 @@ import java.util.Scanner;
 import java.util.Stack;
 import junit.framework.TestCase;
 
+//Most Nodes: 2589328
+//BUILD SUCCESSFUL (total time: 3 minutes 11 seconds)
 public class SolutionsVerification extends TestCase {
 
   public SolutionsVerification(String testName) {
@@ -13,18 +15,21 @@ public class SolutionsVerification extends TestCase {
   
   public void test(){
     final ResourceBundle puzzles = ResourceBundle.getBundle("stackexchange.codegolf.floodpaint.PuzzlesBundle");
-    final ResourceBundle solutions = ResourceBundle.getBundle("stackexchange.codegolf.floodpaint.SolutionsBundle");
+    final ResourceBundle solutions = ResourceBundle.getBundle("stackexchange.codegolf.floodpaint.SolutionsBundleMostNodes");
      
-      for (int i = 1; i <= 5316; i++) {
+    int total = 0;
+    for (int i = 1; i <= 100000; i++) {
         final String puzzle = puzzles.getString("Puzzle"+i);
         final String solution = solutions.getString("Puzzle"+i);
         char[] board = boardGen(puzzle.replaceAll("\"", ""));
         
         final String numbersOnly = solution.replace("[", "").replace("]", "").replaceAll(",", "").replaceAll(" ", "").trim();
-        System.out.println(numbersOnly);
+        //System.out.println(numbersOnly);
+        total += numbersOnly.length();
         process(numbersOnly, board);
         verify(board, i);
     }
+    System.out.println("Total steps: " + total);
   }
   
   private char[] boardGen(String str) {

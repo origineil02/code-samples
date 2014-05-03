@@ -74,4 +74,30 @@ public class SolverTest extends TestCase {
 
     new Solver(b).solve();
   }
+
+  /*
+public void testFileCombination() throws IOException{
+
+  final File all = new File("All.txt");
+  final FileWriter writer = new FileWriter(all);
+  
+  for(int fileNumber = 1; fileNumber <= 100000; ++fileNumber){
+    
+    final File file = new File("SomeSolutions"+fileNumber+".txt");
+    
+    if(file.exists()){
+      
+      final Scanner scanner = new Scanner(file);
+      
+      while(scanner.hasNextLine()){
+        writer.write(scanner.nextLine());
+        writer.write("\n");
+      }
+      writer.flush();
+    }
+    
+  }
+  writer.close();
+}
+* */
 }
