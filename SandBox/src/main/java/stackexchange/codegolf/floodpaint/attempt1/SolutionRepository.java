@@ -1,4 +1,4 @@
-package stackexchange.codegolf.floodpaint;
+package stackexchange.codegolf.floodpaint.attempt1;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import stackexchange.codegolf.floodpaint.Node;
+import stackexchange.codegolf.floodpaint.TurnKey;
 
 public class SolutionRepository {
 
@@ -77,7 +79,7 @@ public class SolutionRepository {
   }
 
   void addSnapshot(final Data data, final List<Integer> input) {
-    map.put(new TurnKey(input.size(), data.getTarget()), data);
+     map.put(new TurnKey(input.size(), data.getTarget()), data);
   }
 
   private void runAlternateMove(Integer key, Data data) {
@@ -85,11 +87,11 @@ public class SolutionRepository {
     if (!key.equals(data.getTarget())) {
 
       final TurnKey turnKey = new TurnKey(data.getInput().size(), key);
-//      System.out.println(turnKey.getTurn());
+      System.out.println(turnKey);
       if (!investigated.contains(turnKey)) {
         investigated.add(turnKey);
         
-//        System.out.println("What if " + key + "?");
+        System.out.println("What if " + key + "?");
 
         List<Integer> input = data.getInput();
         input.remove(input.size() - 1);

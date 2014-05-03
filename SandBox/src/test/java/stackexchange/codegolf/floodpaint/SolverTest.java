@@ -1,5 +1,6 @@
 package stackexchange.codegolf.floodpaint;
 
+import stackexchange.codegolf.floodpaint.attempt1.Solver;
 import java.util.StringTokenizer;
 import junit.framework.TestCase;
 

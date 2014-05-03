@@ -1,5 +1,7 @@
 package stackexchange.codegolf.floodpaint;
 
+import stackexchange.codegolf.floodpaint.attempt1.SolutionRepository;
+import stackexchange.codegolf.floodpaint.attempt1.Solver;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;

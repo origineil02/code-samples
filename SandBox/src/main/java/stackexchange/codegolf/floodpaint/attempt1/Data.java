@@ -1,4 +1,4 @@
-package stackexchange.codegolf.floodpaint;
+package stackexchange.codegolf.floodpaint.attempt1;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import stackexchange.codegolf.floodpaint.Node;
 
 public class Data {
 
@@ -105,4 +106,28 @@ public class Data {
       }
     }
   }
+
+//  @Override
+//  public int hashCode() {
+//    int hash = 3;
+//    hash = 41 * hash + (this.remaining != null ? this.remaining.hashCode() : 0);
+//    return hash;
+//  }
+//
+//  @Override
+//  public boolean equals(Object obj) {
+//    if (obj == null) {
+//      return false;
+//    }
+//    if (getClass() != obj.getClass()) {
+//      return false;
+//    }
+//    final Data other = (Data) obj;
+//    if (this.remaining != other.remaining && (this.remaining == null || !this.remaining.equals(other.remaining))) {
+//      return false;
+//    }
+//    return true;
+//  }
+
+
 }

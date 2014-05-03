@@ -7,8 +7,8 @@ import java.util.StringTokenizer;
 import stackexchange.codegolf.floodpaint.Board;
 import stackexchange.codegolf.floodpaint.Coordinate;
 import stackexchange.codegolf.floodpaint.Node;
-import stackexchange.codegolf.floodpaint.SolutionRepository;
-import stackexchange.codegolf.floodpaint.Solver;
+import stackexchange.codegolf.floodpaint.attempt1.SolutionRepository;
+import stackexchange.codegolf.floodpaint.attempt1.Solver;
 
 //BUILD SUCCESSFUL (total time: 220 minutes 15 seconds)
 //Total steps: 2403189

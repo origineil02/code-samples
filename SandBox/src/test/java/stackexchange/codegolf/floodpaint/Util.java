@@ -1,6 +1,8 @@
 package stackexchange.codegolf.floodpaint;
 
 
+import stackexchange.codegolf.floodpaint.attempt1.SolutionRepository;
+import stackexchange.codegolf.floodpaint.attempt1.Solver;
 import java.util.StringTokenizer;
 
 public class Util {
@@ -25,9 +27,10 @@ public static void solve(String str){
      //System.out.println(b.asValues());
  
      new Solver(b).solve();
-     System.out.println(
-     SolutionRepository.getInstance().bestAnswer().toString().replace("[", "").replace("]", "").replaceAll(",", "").replaceAll(" ", ""));
-     SolutionRepository.getInstance().reset();
+     System.out.println("(" + SolutionRepository.getInstance().bestAnswer().size() + "): " + SolutionRepository.getInstance().bestAnswer());
+     //System.out.println(SolutionRepository.getInstance().bestAnswer().toString().replace("[", "").replace("]", "").replaceAll(",", "").replaceAll(" ", ""));
+     
+     //SolutionRepository.getInstance().reset();
   }
   
    

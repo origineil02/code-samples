@@ -19,6 +19,11 @@ public class TurnKey {
     return turn;
   }
 
+  @Override
+  public String toString() {
+    return "TurnKey{" + "turn=" + turn + "," + "selectedValue=" + selectedValue +'}';
+  }
+
    
 
   @Override

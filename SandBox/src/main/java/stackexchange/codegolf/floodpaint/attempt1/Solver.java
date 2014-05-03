@@ -1,4 +1,4 @@
-package stackexchange.codegolf.floodpaint;
+package stackexchange.codegolf.floodpaint.attempt1;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import stackexchange.codegolf.floodpaint.Board;
+import stackexchange.codegolf.floodpaint.Node;
 
 public class Solver implements Runnable {
 
@@ -85,6 +87,7 @@ public class Solver implements Runnable {
       flood();
     }
     
+    System.out.println("First Pass: " + input.size() + " | " + input);
     if(!cancelled){
     
     SolutionRepository.getInstance().setThreshold(input.size());
@@ -109,9 +112,10 @@ public class Solver implements Runnable {
     input.add(data.getTarget());
      
     if(input.size() > SolutionRepository.getInstance().getThreshold()){
-      //System.out.println("Exceeded threshold: " + input.toString());
+      //System.out.println("Exceeded threshold ("+SolutionRepository.getInstance().getThreshold()+"): " +input.size() +" | " + input.toString());
       cancelled = true;
     }
+    
     paintable.addAll(data.targets());
     remaining.removeAll(data.targets());
     
