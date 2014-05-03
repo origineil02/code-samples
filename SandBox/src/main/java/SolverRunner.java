@@ -1,6 +1,7 @@
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import stackexchange.codegolf.floodpaint.Board;
@@ -9,23 +10,40 @@ import stackexchange.codegolf.floodpaint.Node;
 import stackexchange.codegolf.floodpaint.SolutionRepository;
 import stackexchange.codegolf.floodpaint.Solver;
 
+//BUILD SUCCESSFUL (total time: 220 minutes 15 seconds)
+//Total steps: 2403189
 public class SolverRunner implements Runnable{
+  private Integer currentPuzzle;
 
+  public SolverRunner(Integer number) {
+    this.currentPuzzle = number;
+  }
+  
+  
   public void run() {
       final ResourceBundle bundle = ResourceBundle.getBundle("stackexchange.codegolf.floodpaint.PuzzlesBundle");
      
       try{
-      final FileWriter writer = new FileWriter(new File("SomeSolutions.txt"));
-      for (int i = 5317; i <= 100000; i++) {
+        int total = 0;
+      final FileWriter writer = new FileWriter(new File("SomeSolutions"+ currentPuzzle+".txt"));
+      for (int i = currentPuzzle; i <= 100000; i++) {
+        currentPuzzle = i;
       final String str = bundle.getString("Puzzle"+i);
       process(str);
-        writer.write("Puzzle"+i+ "=" + SolutionRepository.getInstance().bestAnswer());
+      final List<Integer> solution = SolutionRepository.getInstance().bestAnswer();
+        writer.write("Puzzle"+i+ "=" +  solution);
+         //final String numbersOnly = solution.replace("[", "").replace("]", "").replaceAll(",", "").replaceAll(" ", "").trim();
+         total+=solution.size();
         writer.write("\n");
         writer.flush();
         SolutionRepository.getInstance().reset();
       
     }
-      }catch(Exception ex){ex.printStackTrace();}
+        System.out.println(total);
+      }catch(Exception ex){ex.printStackTrace();
+        final Thread t = new Thread(new SolverRunner(currentPuzzle));
+        t.start();
+      }
   }
  
   private void process(String str){

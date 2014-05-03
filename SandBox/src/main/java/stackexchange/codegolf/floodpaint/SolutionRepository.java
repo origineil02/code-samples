@@ -22,12 +22,15 @@ public class SolutionRepository {
   private Set<TurnKey> investigated = new HashSet<TurnKey>();
   private static SolutionRepository instance;
   private Integer threshold = Integer.MAX_VALUE;
+  private Integer puzzleNumber;
 
   private SolutionRepository() {
   }
 
-  ;
-  
+  public Integer getPuzzleNumber() {
+    return puzzleNumber;
+  }
+
   public static SolutionRepository getInstance() {
     if (instance == null) {
       instance = new SolutionRepository();
@@ -43,7 +46,7 @@ public class SolutionRepository {
     this.threshold = threshold;
   }
 
-  void debug() {
+  void runOtherScenarios() {
 
      
 

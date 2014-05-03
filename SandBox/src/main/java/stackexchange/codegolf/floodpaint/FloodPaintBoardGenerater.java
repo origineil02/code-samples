@@ -31,11 +31,13 @@ public class FloodPaintBoardGenerater implements Runnable {
       
       if(row.trim().isEmpty()){
         //System.out.println(board);
-        System.out.println(String.format("Puzzle: %d \n %s", ++puzzle, board.asValues()));
+        
+        
+        System.out.println("Puzzle: " + puzzle++);
         final Solver solver = new Solver(board);
         
         solver.solve();
-        SolutionRepository.getInstance().debug();
+        //SolutionRepository.getInstance().runOtherScenarios();
         List<Integer> inputs = SolutionRepository.getInstance().bestAnswer();
         
         
@@ -46,7 +48,7 @@ public class FloodPaintBoardGenerater implements Runnable {
         board = new Board(19);
         total += inputs.size();
          
-        Thread.sleep(250);
+        //Thread.sleep(250);
        
       }
       else

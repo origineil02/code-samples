@@ -89,7 +89,7 @@ public class Solver implements Runnable {
     
     SolutionRepository.getInstance().setThreshold(input.size());
     SolutionRepository.getInstance().addSolution(input);
-    SolutionRepository.getInstance().debug();
+    //SolutionRepository.getInstance().runOtherScenarios();
     }
     
     //System.out.println(SolutionRepository.getInstance().bestAnswer());
