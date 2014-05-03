@@ -89,6 +89,9 @@ public class Solver implements Runnable {
     
     SolutionRepository.getInstance().setThreshold(input.size());
     SolutionRepository.getInstance().addSolution(input);
+    
+    //TODO: Uncomment this line if you want "multi" path checking
+    
     //SolutionRepository.getInstance().runOtherScenarios();
     }
     
