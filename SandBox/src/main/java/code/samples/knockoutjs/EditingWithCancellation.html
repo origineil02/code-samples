@@ -1,0 +1,89 @@
+<html>
+  <div>
+    <fieldset>
+        <p> <b>Add items to array:</b>
+
+        </p>
+        <p>
+            <input data-bind="value: someVal" type="text" />
+        </p>
+        <p>
+            <button type="submit" data-bind="click: $root.addItem">Add item</button>
+        </p>
+    </fieldset>
+</div>
+<br />
+<fieldset style="background-color: #eee; "> <b>Array summary:</b>
+
+    <br />
+    <ul data-bind="foreach: items">
+        <li data-bind="text: someVal"></li>
+    </ul>
+</fieldset>
+<p><b>Update items in array manually:</b>
+
+</p>
+<select data-bind="options: items, optionsText: 'someVal', optionsValue: $data, optionsCaption: 'Select to update...', value: edit"></select>
+<div data-bind="with: edit">
+    <input data-bind="value: $root.editingViewModel.temp"></input>
+    <button data-bind="click: $root.updateItem">Update</button>
+    <button data-bind="click: $root.cancel">Cancel</button>
+</div>
+<br />
+<br />
+<span data-bind="text: ko.toJSON($root)"></span>
+
+<script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
+<script>
+    
+    function ViewModel() {
+
+    var self = this;
+
+    self.someVal = ko.observable();
+
+    self.items = ko.observableArray([{
+        someVal: ko.observable("first item")
+    }]);
+
+    self.edit = ko.observable();
+
+    self.addItem = function () {
+        self.items.push({
+            someVal: ko.observable(self.someVal())
+        });
+    };
+
+    self.updateItem = function () {
+ 
+        console.log('evm: ' + ko.toJSON(self.editingViewModel))
+
+        self.edit().someVal(self.editingViewModel.temp());
+        self.edit(null);
+    };
+
+    self.cancel = function () {
+        self.editingViewModel = {};
+        self.edit(null)
+    };
+
+    self.editingViewModelFactory = function (selection) {
+        if (null == selection) {
+            return {};
+        }
+        
+        console.log("editing: " + ko.toJSON(selection));
+        return {
+            temp: ko.observable(selection.someVal())
+        }
+    };
+
+    self.edit.subscribe(function (editSelection) {
+        self.editingViewModel = new self.editingViewModelFactory(editSelection);
+    });
+}
+
+var vm = new ViewModel();
+ko.applyBindings(vm);
+</script>
+</html>
