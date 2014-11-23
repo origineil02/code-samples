@@ -68,12 +68,17 @@
     console.log("Delete")
     var selected = grid.getSelectedRows();
     grid.setSelectedRows([]);
+    var arr = [];
+    
     $.each(selected, function (index, value) {
+      arr[index] = grid.getData().getItem(value).id;
+    })
+    
+    $.each(arr, function (index, value) {
         console.log("Index: " + index)
-        console.log("Value " + value)
+        console.log("Id " + value)
 
-        var item = grid.getData().getItem(value);
-        grid.getData().deleteItem(item.id)
+        grid.getData().deleteItem(value)
     })
     grid.invalidate()
 });
