@@ -1,0 +1,22 @@
+<html>
+ <script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
+
+ <input type="checkbox" data-bind='checked: boolValue'>Single boolean value</input>
+ 
+ 
+ <ul>
+   <li style='list-style-type: none'>Array bound</li>
+   <li>
+     <input type="checkbox" value='someValue1' data-bind='checked: arrValue'>Element 1</input>
+   </li>
+   <li>
+     <input type="checkbox" value='someValue2' data-bind='checked: arrValue'>Element 2</input>
+   </li>
+ </ul>
+ <div>
+   <span data-bind='text: ko.toJSON($data)'></span>
+ </div>
+ <script>
+   ko.applyBindings({boolValue: ko.observable(true), arrValue: ko.observableArray(['someValue2'])})
+ </script>
+</html>
