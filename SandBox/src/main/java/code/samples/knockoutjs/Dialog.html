@@ -1,8 +1,15 @@
 <html>
   <script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
-  <script src='https://code.jquery.com/jquery-2.1.1.min.js'></script>
-  <script src='https://code.jquery.com/ui/1.11.2/jquery-ui.min.js'></script>
+  <script src='http://code.jquery.com/jquery-2.1.1.min.js'></script>
+  <script src='http://code.jquery.com/ui/1.11.2/jquery-ui.min.js'></script>
    
+  <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+  
+  <div id="theDialog" data-bind='with: dialogModel'>
+    <a href="#" data-bind="click: func">Function Call</a>
+  </div>
+  <button data-bind='click: dialog'>Dialog</button>
+  
   <script>
     var RootModel = function() {
       var self = this;
@@ -23,9 +30,4 @@
 
     ko.applyBindings(new RootModel());
   </script>
-
-  <div id="theDialog" data-bind='with: dialogModel'>
-    <a href="#" data-bind="click: func">Function Call</a>
-  </div>
-  <button data-bind='click: dialog'>Dialog</button>
 </html>
