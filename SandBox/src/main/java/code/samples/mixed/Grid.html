@@ -1,0 +1,142 @@
+<html>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min.js"></script>
+ 
+  <link rel="stylesheet" type="text/css" href="http://mleibman.github.io/SlickGrid/slick.grid.css">
+  <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+
+  <script src="http://mleibman.github.io/SlickGrid/slick.dataview.js"></script>
+  <script src='http://mleibman.github.io/SlickGrid/lib/jquery.event.drag-2.2.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/slick.core.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/slick.grid.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/plugins/slick.checkboxselectcolumn.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/plugins/slick.rowselectionmodel.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/controls/slick.columnpicker.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/slick.editors.js'></script>
+
+   
+<table>
+  <tr class='centered'>
+    <td>Row</td>
+    <td>Column</td>
+    <td>Value</td>
+  </tr>
+  <tr>
+  <td>
+  <select data-bind='options: items, optionsCaption: "Select index", optionsValue: "id", optionsText: "0", value: rowIndex'></select>
+  </td>
+  <td>
+    <select data-bind='options: columns, optionsCaption: "Select index", optionsValue: "field", optionsText: "name", value: columnIndex'></select>
+  </td>
+    <td>
+      <span data-bind='text: value'></span>
+      </td>
+  </tr></table>
+  <div id="myGrid" style="width:600px;height:500px;"></div>
+
+  <script>
+    var vm = {items:ko.observableArray(), rowIndex: ko.observable(), columnIndex: ko.observable()}
+    var grid;
+    var data = [];
+    var options = {
+      editable: false,
+      enableCellNavigation: true,
+      asyncEditorLoading: false,
+      autoEdit: false,
+      forceFitColumns: true
+    };
+    var columns = [];
+
+    var dataContainer = {}
+
+    $(function() {
+
+      var checkboxSelector = new Slick.CheckboxSelectColumn({
+        cssClass: "slick-cell-checkboxsel"
+      });
+      columns.push(checkboxSelector.getColumnDefinition());
+      for (var i = 0; i < 5; i++) {
+        columns.push({
+          id: i,
+          name: String.fromCharCode("A".charCodeAt(0) + i),
+          field: i,
+          width: 100
+        });
+      }
+
+      (function generateData() {
+        for (var i = 0; i < 10; i++) {
+          dataContainer[i] = {}
+          var d = (data[i] = {});
+          for (x in columns) {
+            dataContainer[i][x] = Math.floor((Math.random() * 100) + 1);
+          }
+          d[0] = "Row " + i;
+          d.id = i
+        }
+      })();
+
+      grid = new Slick.Grid("#myGrid", data, columns, options);
+      grid.setSelectionModel(new Slick.RowSelectionModel({selectActiveRow: false}));
+      grid.registerPlugin(checkboxSelector);
+      var columnpicker = new Slick.Controls.ColumnPicker(columns, grid, options);
+
+      var context = {};
+
+      grid.onMouseEnter.subscribe(function(evt, args) {
+        var cell = grid.getCellFromEvent(evt)
+        context.rowIndex = cell.row;
+        context.row = grid.getDataItem(cell.row);
+      })
+
+      grid.onMouseLeave.subscribe(function(evt, args) {
+        context = {}
+      })
+
+      grid.onSelectedRowsChanged.subscribe(function(evt, args) {
+
+        //console.log(args.grid.getSelectedRows())
+        if (!context.row) {
+          var rows = grid.getData();
+          for (r in rows) {
+            var row = rows[r]
+            for (i = 1; i < columns.length; ++i) {
+              row[i] = args.rows.length == 0 ? '' : dataContainer[r][i]
+            }
+          }
+          grid.invalidateAllRows();
+        } else {
+          var display = args.rows.indexOf(context.rowIndex) >= 0;
+
+          for (i = 1; i < columns.length; ++i) {
+            context.row[i] = display ? dataContainer[context.rowIndex][i] : ''
+          }
+
+          grid.invalidateRow(context.rowIndex);
+        }
+
+        grid.render();
+      });
+      
+      grid.onSelectedRowsChanged.subscribe(function(e, args){vm.columnIndex.valueHasMutated()})
+
+      vm.items = data.slice()
+      vm.columns = columns.slice();
+      vm.columns.splice(0,1)
+      vm.value = ko.computed(function(){
+         
+        if(vm.rowIndex() > -1 && vm.columnIndex() > -1) {
+          var row = grid.getDataItem(vm.rowIndex());
+          var field = vm.columnIndex()
+           
+          return row[field]
+        }
+        return ""
+      })
+    
+    ko.applyBindings(vm)
+    })
+    
+   
+  </script>
+</html>
