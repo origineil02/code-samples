@@ -1,0 +1,10 @@
+--http://ideone.com/EJgjIQ
+
+function t(condition, if_true, if_false)
+  if condition then return if_true else return if_false end
+end
+
+for i = 1,100,1 do      
+  r = t(i%3==0, "Fizz", '') .. t(i%5==0,"Buzz",'')   
+  print(t(#r==0, i, r))
+end
