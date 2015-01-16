@@ -1,0 +1,41 @@
+<html>
+  <script src="http://cdn.alloyui.com/3.0.0/aui/aui-min.js"></script>
+  <link href="http://cdn.alloyui.com/3.0.0/aui-css/css/bootstrap.min.css" rel="stylesheet"></link>
+
+
+  <div id='modalInstance'>Modal Instance</div>
+  <br/>
+  <div id='nodeInstance'>Node Instance</div>
+
+  <div class="yui3-skin-sam">
+    <div id="modal"></div>
+  </div>
+
+  <script>
+    YUI().use('aui-modal', function(Y) {
+
+      var modal = new Y.Modal({
+        bodyContent: "<p>Default implementation</p>",
+        centered: false,
+        destroyOnHide: false,
+        headerContent: '<h3>Help info</h3>',
+        modal: true,
+        render: '#modal',
+        visible: false,
+        width: 250
+      });
+
+      Y.one('#modalInstance').on('click', function() {
+        modal.set('bodyContent', "<p>Something loaded using the orginal modal instance</p>")
+        modal.show()
+      })
+
+      Y.one('#nodeInstance').on('click', function(e) {
+        Y.one('#modal .modal-content .modal-body').setHTML('<p>Set using the node instance</p>')
+        modal.show()
+      })
+
+    });
+  </script>
+
+</html>
