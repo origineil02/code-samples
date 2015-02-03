@@ -20,17 +20,25 @@
           {Knockout: 3},
           {Slickgrid: 3},
           {Liferay: 1},
-          {'ReST Services': 3},
+          {XSLT: 4},
+          {'REST Services': 3},
           {Spring: 2},
           {'Data Visualization': 6.5},
           {jQuery: 3},
+          
+          {Selenium: 3},
+          {'Atlassian Tools': 5},
+          
+          {NetBeans: 6.5},
+          {Eclipse: 1},
+          
           {Hibernate: 1},
           {'AlloyUI': 1},
           {'YUI3': 1},
           {'JSON': 4},
           {'MooTools': 3},
-          {'Agile/Scrum': 3}
-
+          {'Agile/Scrum': 3},
+          {Jenkins: 5}
         ]
         var vm = {
           experience: function() {
@@ -100,7 +108,7 @@
             showLastLabel: true,
             labels: {
               formatter: function() {
-                return (this.value * vm.experience() / 100) + ' years';
+                return (this.value * vm.experience() / 100).toPrecision(2) + ' years';
               }
             },
             reversedStacks: false
