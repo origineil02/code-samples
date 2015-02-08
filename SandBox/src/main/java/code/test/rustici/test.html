@@ -2,18 +2,22 @@
   <head>
     <script>
 
+      function swap(array, i, j){
+          var t = array[j];
+          array[j] = array[i];
+          array[i] = t;
+      }
+      
       /* In place randomizer/shuffler */
       function shuffle(array, callback) {
-        var m = array.length;
+        var j = array.length;
 
-        while (m) {
+        while (j) {
 
-          var i = Math.floor(Math.random() * m--);
+          var i = Math.floor(Math.random() * j--);
 
-          var t = array[m];
-          array[m] = array[i];
-          array[i] = t;
-          callback(i, m)
+          swap(array, i, j)
+          if(callback){ callback(i, j); }
         }
 
         return array;
@@ -25,7 +29,18 @@
        */
       function RandomizeTest(tstObject) {
 
-      
+        shuffle(tstObject.questions, function(i, j){
+          
+          //update choices and answers positioning
+          swap(tstObject.choices, i,j)
+          swap(tstObject.answers, i,j)
+           
+          //randomize choices
+          shuffle(tstObject.choices[j], function(a,b){
+            //update answers positioning
+            swap(tstObject.answers[j], a,b)
+          })
+        })
 
         return tstObject;
       }
