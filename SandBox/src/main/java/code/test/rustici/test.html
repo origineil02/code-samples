@@ -1,0 +1,150 @@
+<html>
+  <head>
+    <script>
+
+      /* In place randomizer/shuffler */
+      function shuffle(array, callback) {
+        var m = array.length;
+
+        while (m) {
+
+          var i = Math.floor(Math.random() * m--);
+
+          var t = array[m];
+          array[m] = array[i];
+          array[i] = t;
+          callback(i, m)
+        }
+
+        return array;
+      }
+      
+      /*
+       RandomizeTest accepts and returns a Test object. The questions in the returned object should be in a random order.
+       The order of the choices within each question should also be randomized.
+       */
+      function RandomizeTest(tstObject) {
+
+      
+
+        return tstObject;
+      }
+
+      function Test(aryQuestions, aryChoices, aryAnswers) {
+        this.questions = aryQuestions;
+        this.choices = aryChoices;
+        this.answers = aryAnswers;
+      }
+
+      function WriteTest() {
+
+        var tst = CreateSampleTest();
+
+        tst = RandomizeTest(tst);
+
+        document.write("<table border=0 cellspacing=3 cellpadding=3><form name=test id=test>");
+
+        for (i = 0; i < tst.questions.length; i++) {
+
+          document.write("<tr><td valign=top>&nbsp;</td>")
+
+          document.write("<td><p>" + (i + 1) + ".&nbsp;" + tst.questions[i]);
+
+          for (j = 0; j < tst.choices[i].length; j++) {
+
+            var correctcount = 0;
+            var setblue = "";
+
+            for (k = 0; k < tst.answers[i].length; k++) {
+              if (tst.answers[i][k] == 1) {
+                correctcount++;
+              }
+            }
+
+            if (tst.answers[i][j] == 1) {
+              setblue = "class=blue"
+            }
+
+            if (correctcount == 1) {
+              document.write("<br><input type=radio name=check" + i + " value=" + j + " onclick='return false;'>");
+              document.write("<span " + setblue + ">" + tst.choices[i][j] + "</span>");
+            }
+
+            else {
+              document.write("<br><input type=checkbox name=check" + i + " value=" + j + " onclick='return false;'>");
+              document.write("<span " + setblue + ">" + tst.choices[i][j] + "</span>");
+            }
+          }
+
+          document.write("</td></tr><tr><td colspan=2><br></td></tr>");
+        }
+        document.write('</form></table>');
+      }
+
+      function CreateSampleTest() {
+
+        var questions = [
+          "What can you find in Rustici Software's office?",
+          "All of Rustici Software employees are expected to work no more than ____ hours per week.",
+          "The end users of Rustici Software's products number in the _________",
+          "Rustici Software is a (choose all that apply):",
+          "Tim likes to wear:"
+        ];
+
+        var choices = [
+          [
+            "Dart Board",
+            "Ping Pong Table",
+            "Cubicles",
+            "Laptops with dual monitors",
+            "TPS reports, ummm yeah"
+          ],
+          [
+            "80",
+            "40",
+            "50",
+            "60"
+          ],
+          [
+            "Tens",
+            "Hundreds",
+            "Thousands",
+            "Millions",
+            "Billions"
+          ],
+          [
+            "Great place to work",
+            "Respected leader in its field",
+            "Place where people don't matter, just results"
+          ],
+          [
+            "Capri pants",
+            "Goth attire",
+            "Sport coat",
+            "T-shirt and shorts"
+          ]
+        ];
+
+        var answers = [
+          [1, 1, 0, 1, 0],
+          [0, 1, 0, 0],
+          [0, 0, 0, 1, 0],
+          [1, 1, 0],
+          [0, 0, 0, 1, 0]
+        ];
+
+        return new Test(questions, choices, answers);
+      }
+
+
+    </script>
+    <style type="text/css">
+      .blue {font-size : 14px; font-family : arial, helvetica, sans-serif; color : #336897; font-weight:bold;}
+    </style>
+  </head>
+  <body>
+    <script>
+      WriteTest();
+    </script>
+  </body>
+</html>
