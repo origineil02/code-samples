@@ -36,7 +36,7 @@
     var columns = [
       {id: "column1", name: "State", field: "state", sortable: true},
       {id: "column2", name: "City", field: "city", sortable: true},
-      {id: "column3", name: "Zip", field: "zip"}
+      {id: "column3", name: "Zip", field: "zip", sortable: true}
     ];
 
     var options = {
@@ -60,19 +60,31 @@
 
     grid.onSort.subscribe(function(e, args) {
 
-      console.log(args.multiColumnSort)
-      console.log(args.sortCols)
-      var comparer = function(a, b) {
-        return (a[args.sortCols[0].field] > b[args.sortCols[0].field]) ? 1 : -1;
-      }
-
-      dataView.sort(comparer, args.sortAsc);
+      //args.sortCols.splice(0, 0, {sortCol: columns[0], sortAsc: true})
+      var cols = args.sortCols;
+      
+      dataView.sort(function(dataRow1, dataRow2) {
+        for (var i = 0, l = cols.length; i < l; i++) {
+          var field = cols[i].sortCol.field;
+          var sign = cols[i].sortAsc ? 1 : -1;
+          var value1 = dataRow1[field], value2 = dataRow2[field];
+          var result = (value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign;
+          if (result != 0) {
+            return result;
+          }
+        }
+        return 0;
+      });
     });
 
     var data = [
       {state: 'CA', city: 'Los Angeles', zip: '90014'},
       {state: 'CA', city: 'Santa Monica', zip: '90401'},
-      {state: 'NY', city: 'Manhattan', zip: '10001'}
+      {state: 'CA', city: 'Napa', zip: '94558'},
+      {state: 'NY', city: 'Manhattan', zip: '10001'},
+      {state: 'NY', city: 'Buffalo', zip: '14201'},
+      {state: 'HI', city: 'Hilo', zip: '96720'},
+      {state: 'HI', city: 'Hawi', zip: '96719'},
     ]
 
     dataView.setItems(data, 'zip');
