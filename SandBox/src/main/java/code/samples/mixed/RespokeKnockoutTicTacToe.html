@@ -1,0 +1,49 @@
+ 
+<html>
+  <script type="text/html" id="connected-template">
+    <button type='button' data-bind="click: disconnect" />
+    Connected
+  </script>
+
+  <script type="text/html" id="diconnected-template">
+    <h3 id="status">Not Connected</h3>
+    <div id="login">
+      User Name:
+      <input   type="text" data-bind='value: user'/>
+      <button type='button' data-bind="click: connect, text: 'Connect'" />
+    </div>
+  </script>
+
+  <script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
+  <script src="https://cdn.respoke.io/respoke.min.js"></script>
+
+  <div data-bind="template: { name: template, data: $data }"></div>  
+
+  <script>
+   var appid = "DD90A374-0C06-456F-9D4F-E8038E6523D2";
+   var client = respoke.createClient({
+                  appId: appid,
+                  developmentMode: true
+                });
+   client.listen('connect', function () {
+      console.log('success')
+      vm.connected(true);
+   });
+            
+   var vm = {
+        connected: ko.observable(false),
+        user: ko.observable(),
+        connect: function(){
+                    console.log('connect')
+                    var endpoint = vm.user()
+                    client.connect({
+                              endpointId: endpoint
+                            });
+                 }
+        //disconnect: function(){console.log('disconnect')}
+            }
+
+    vm.template = ko.computed(function(){ return vm.connected() ? 'connectd-template' : 'diconnected-template'})
+    ko.applyBindings(vm)
+  </script>
+</html>
