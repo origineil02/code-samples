@@ -1,49 +1,110 @@
  
 <html>
-  <script type="text/html" id="connected-template">
-    <button type='button' data-bind="click: disconnect" />
-    Connected
-  </script>
+  
+  <style>
+    .tile{
+      height: 20px;
+      width: 20px;
+   
+      border: solid black 1px;
+    }
+    
+  </style>
+<script type="text/html" id="connected-template">
+    <div>
+        <span   data-bind='text: board().length'></span>
+        <fieldset><legend>Tic Tac Toe</legend>
+        <table  data-bind='foreach: board'>
+            <tr  data-bind='foreach: $data'>
+                <td class='tile' data-bind='disable: value && !value(), click: $root.move, text: value'></td>
+                 
+            </tr>
+        </table>
+        </fieldset>
+    </div>
+</script>
 
-  <script type="text/html" id="diconnected-template">
-    <h3 id="status">Not Connected</h3>
+<script type="text/html" id="diconnected-template">
+  <h3 id="status">Not Connected</h3>
     <div id="login">
       User Name:
       <input   type="text" data-bind='value: user'/>
       <button type='button' data-bind="click: connect, text: 'Connect'" />
     </div>
-  </script>
+</script>
 
-  <script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
-  <script src="https://cdn.respoke.io/respoke.min.js"></script>
+<script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.js'></script>
+<script src="https://cdn.respoke.io/respoke.min.js"></script>
+   
+ <div data-bind="template: { name: template, data: $data }"></div>   
 
-  <div data-bind="template: { name: template, data: $data }"></div>  
 
+<div data-bind='text: ko.toJSON($data)'></div>
+
+  
+
+   
   <script>
-   var appid = "DD90A374-0C06-456F-9D4F-E8038E6523D2";
-   var client = respoke.createClient({
-                  appId: appid,
-                  developmentMode: true
-                });
-   client.listen('connect', function () {
-      console.log('success')
-      vm.connected(true);
-   });
-            
-   var vm = {
-        connected: ko.observable(false),
-        user: ko.observable(),
-        connect: function(){
-                    console.log('connect')
-                    var endpoint = vm.user()
-                    client.connect({
-                              endpointId: endpoint
-                            });
-                 }
-        //disconnect: function(){console.log('disconnect')}
-            }
+   var appid = "dc0feacb-13c7-44c8-ad19-0acdd3c6a9dd";
 
-    vm.template = ko.computed(function(){ return vm.connected() ? 'connectd-template' : 'diconnected-template'})
-    ko.applyBindings(vm)
+var client = respoke.createClient({
+    appId: appid,
+    developmentMode: true
+});
+
+
+client.listen('connect', function () {
+    vm.connected(true)
+});
+
+function Cell(id){
+    return {value: ko.observable()}
+}
+
+ 
+function init() {
+    var rows = []
+    for(i =0; i < 3; ++i ){
+        rows.push([])
+        for(j=0; j < 3; ++j ){
+            rows[i].push(new Cell(0))
+        }
+    }
+    return rows;
+}
+
+
+var vm = {
+    connected: ko.observable(false),
+    board: ko.observableArray(init()),
+    user: ko.observable(),
+    connect: function(){
+       var endpoint =  vm.user();
+       client.connect({
+       endpointId: endpoint
+    });
+    },
+    move: function(cell){
+        if(!cell.value()){ 
+           cell.value(vm.user() == 'Tic' ? 'X': 'O')
+           var endpoint = client.getEndpoint({ id: vm.user() == 'Tic' ? 'Tac' : 'Tic' });
+           endpoint.sendMessage({ message : ko.toJSON(vm) });
+        }
+    }
+}
+
+vm.template = ko.computed(function(){ return vm.connected() ? 'connected-template' : 'diconnected-template'})
+
+ko.applyBindings(vm)
+ 
+
+// listen for incoming messages
+client.listen('message', function(evt) {
+    var tmp = ko.mapping.fromJSON(evt.message.message);
+    console.log(tmp)
+    vm.board(tmp.board());
+});
+
   </script>
 </html>
