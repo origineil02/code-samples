@@ -4,12 +4,23 @@
     .tile{
       height: 100px;
       width: 95px;
-   
+      
       border:5px outset #999;
-    -webkit-box-shadow: 5px 5px 15px rgba(0,0,0,0.4);
-    -moz-box-shadow: 5px 5px 15px rgba(0,0,0,0.4);
+      -webkit-box-shadow: 5px 5px 15px rgba(0,0,0,0.4);
+      -moz-box-shadow: 5px 5px 15px rgba(0,0,0,0.4);
     }
     
+    .videoRequest, .tile {border-radius: 5px;}
+    
+    .large-tile {
+       height: 300px;
+       width: 300px;
+    }
+    .videoRequest {
+       background: url(http://www.dovevision.org/admin_controller/generalItem/Video_MessageImages/34.jpg) -50px;
+    }
+    
+   
     .xToken{
       width: 100px;
       height: 95px;
@@ -24,27 +35,66 @@
     
     .clickable {
         cursor: pointer;
-        background-color: green
+        background: -webkit-linear-gradient(green, lime); /* For Safari 5.1 to 6.0 */
+        background: -o-radial-gradient(green, lime); /* For Opera 11.1 to 12.0 */
+        background: -moz-radial-gradient(green, lime); /* For Firefox 3.6 to 15 */
+        background: radial-gradient(#33AD33, #008000); /* Standard syntax (must be last) */
+    }
+    
+    .notyourturn {
+        background: url(https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcT6myg16mabZk-xKXy5oBIjSry4Sr3HbLTvQnBnXBpXPcBL4PZ-Rw) -50px -50px;
+    }
+    
+    #localVideoSource video{
+        height: 100px;
+        margin: -130px 0 0 20px;
+        position: absolute;
     }
     
   </style>
+  <script type="text/html" id="video-template">
+      <div data-bind='ifnot: videoController.activeCall, click: $root.videoController.call'>
+        <button title='Request video connection' class='large-tile videoRequest' ></button>
+      </div>
+       <div  data-bind="if: videoController.activeCall()">
+        <div class='large-tile'>
+        <button data-bind='click: $root.videoController.hangup'>Hang up</button>
+      
+         <div id="remoteVideoSource"></div>
+         <div id="localVideoSource"></div>
+       </div>
+       </div>
+  </script>
+      
 <script type="text/html" id="connected-template">
     <div>
-        <fieldset><legend>Tic Tac Toe</legend>
-          <div data-bind="template: { name: isGameOver() ? (winner() ? 'win-template' : 'lost-template') : 'inprogress-template', data: $data}"></div>
+        <fieldset style='border-radius: 5px'><legend>Tic Tac Toe</legend>
+            <table>
+                <tr>
+                    <td>
+                        <div data-bind="template: { name: isGameOver() ? (winner() ? 'win-template' : 'lost-template') : 'inprogress-template', data: $data}"></div>
           <!--<div data-bind='if: isGameOver'><button data-bind='click: $root.reset'>Play Again</button></div>-->
+                    </td>
+                    <td style='padding-left: 15px'>
+                        <div data-bind="template: {name: 'video-template', data: $data}"></div>
+                    </td>
+                </tr>
+            </table>
+        
         </fieldset>
+        
     </div>
 </script>
 
 <script type="text/html" id="inprogress-template">
+    <div data-bind='if: !isMyTurn()'>Awaiting opponent move...</div>
    <table  data-bind='foreach: board'>
             <tr  data-bind='foreach: $data'>
                 <td>
                     <button class='tile' data-bind='disable: value() || !$root.isMyTurn() ,
                                             click: $root.move, 
                                              
-                                            css: {clickable: !value() && $root.isMyTurn(), xToken: value() == "X", oToken: value() == "O"}'></button>                          
+                                            css: { clickable: !value() && $root.isMyTurn(), xToken: value() == "X", oToken: value() == "O"}'></button>                          
                 </td>
             </tr>
         </table>
@@ -75,6 +125,8 @@
    
   <script>
    var appid = "dc0feacb-13c7-44c8-ad19-0acdd3c6a9dd";
+
+   respoke.log.setLevel('debug');
 
 var DrawChecker = new Class({
   initialize: function(board){
@@ -179,8 +231,8 @@ var SolveChecker = new Class({
     isSolved: function(){
       var self = this;
     
-     var solution = function(){
-     for(var x = 0; x < self.board.length; ++x ){
+       var solution = function(){
+       for(var x = 0; x < self.board.length; ++x ){
          //console.log(i)
         var isRowSolved = self.rowChecker.isSolved(self.board[x])
         var isColumnSolved = self.columnChecker.isSolved(x)
@@ -192,8 +244,7 @@ var SolveChecker = new Class({
              console.log(solution)
             return solution;
         }
-             
-        }
+      }
     }
     return solution();
     
@@ -224,19 +275,71 @@ function init() {
     return rows;
 }
 
+var VideoController = new Class({
+    
+    initialize: function(vm){
+        var self = this;
+        self.activeCall = ko.observable(false)
+        self.callOptions= {
+//                    constraints: {audio: true, video: true},
+//                    previewLocalMedia: function(element, call){ 
+//                       self.setVideo('localVideoSource', element)
+//                       call.approve();
+//                    },
+                    onLocalMedia: function(evt) {
+                        self.setVideo('localVideoSource', evt.element)
+                    },
+                    onConnect: function(evt) {
+                        self.setVideo('remoteVideoSource', evt.element)
+                    }
+                };
+                console.log(self.activeCall())
+    },
+    setVideo: function(id, ele){
+        var videoParent = document.getElementById(id);
+        videoParent.innerHTML = "";
+        videoParent.appendChild(ele);
+    },
+    call: function(){
+         var self = this;
+         var recipientEndpoint = client.getEndpoint({ id: self.opponent() });
+         var result = recipientEndpoint.startVideoCall(self.videoController.callOptions);
+         self.videoController.activeCall(result);
+    },
+    answer: function(call){
+        var self = this;
+        console.log(self)
+         if (call.caller !== true) {
+              self.activeCall(call)
+              call.answer(self.callOptions);
+         }
+    },
+    hangup: function(){
+        var self = this;
+        console.log('hangup request')
+        self.videoController.activeCall().hangup();
+        self.videoController.activeCall(null)
+    }
+})
+
 var VM = new Class({
   initialize: function(){
   var self = this;
+    self.videoController = new VideoController(this);
+    
     self.instance = ko.observable(this)
     self.connected = ko.observable(false)
     self.board = ko.observableArray(init())
     self.user = ko.observable()
     self.isMyTurn = ko.observable(false)
 //    self.toggler = ko.observable(false)
+    self.opponent= ko.observable()
     self.winner = ko.observable(false)
     self.connect = function(){
        var endpoint =  self.user();
        if(self.user() == 'Tac'){self.isMyTurn(true)}
+       self.opponent(self.user() == 'Tac' ? 'Tic' : 'Tac')
+       
        client.connect({
          endpointId: endpoint
        });
@@ -286,5 +389,13 @@ client.listen('message', function(evt) {
     vm.instance().isMyTurn(true)
 });
 
+client.listen('call', function(evt) {
+
+    console.log('call  ')
+    console.log(evt.call)
+    var call = evt.call
+    vm.videoController.answer(call);
+ });
+    
   </script>
 </html>
