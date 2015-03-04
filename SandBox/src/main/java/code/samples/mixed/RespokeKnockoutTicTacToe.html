@@ -3,28 +3,44 @@
   
   <style>
     .tile{
-      height: 20px;
-      width: 20px;
+      height: 65px;
+      width: 65px;
    
       border: solid black 1px;
+    }
+    
+    .clickable {
+        cursor: pointer;
+        background-color: green
     }
     
   </style>
 <script type="text/html" id="connected-template">
     <div>
-        <span   data-bind='text: board().length'></span>
         <fieldset><legend>Tic Tac Toe</legend>
         <table  data-bind='foreach: board'>
             <tr  data-bind='foreach: $data'>
-                <td class='tile' data-bind='disable: value && !value(), click: $root.move, text: value'></td>
+                <td>
+                    
+                    <button class='tile' data-bind='disable: value() || !$root.isMyTurn || $root.gameOver,
+                                            click: $root.move, 
+                                            text: value,
+                                            css: {clickable: !value() && !$root.gameOver() && $root.isMyTurn()}'></button>                          
+                   
+                    
+                </td>
                  
             </tr>
         </table>
+       
         </fieldset>
     </div>
 </script>
 
-<script type="text/html" id="diconnected-template">
+<script type="text/html" id="win-template">
+</script>
+
+<script type="text/html" id="disconnected-template">
   <h3 id="status">Not Connected</h3>
     <div id="login">
       User Name:
@@ -37,13 +53,11 @@
 <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.js'></script>
 <script src="https://cdn.respoke.io/respoke.min.js"></script>
    
+<input type='checkbox' data-bind='checked: toggler'></input>
  <div data-bind="template: { name: template, data: $data }"></div>   
 
 
 <div data-bind='text: ko.toJSON($data)'></div>
-
-  
-
    
   <script>
    var appid = "dc0feacb-13c7-44c8-ad19-0acdd3c6a9dd";
@@ -59,7 +73,7 @@ client.listen('connect', function () {
 });
 
 function Cell(id){
-    return {value: ko.observable()}
+    return {value: ko.observable('')}
 }
 
  
@@ -79,31 +93,149 @@ var vm = {
     connected: ko.observable(false),
     board: ko.observableArray(init()),
     user: ko.observable(),
+    isMyTurn: ko.observable(false),
+    toggler: ko.observable(false),
+    winner: ko.observable(false),
     connect: function(){
        var endpoint =  vm.user();
+       if(vm.user() == 'Tac'){vm.isMyTurn(true)}
        client.connect({
        endpointId: endpoint
     });
     },
+    
+    moveToken: function(){
+        return vm.user() == 'Tic' ? 'X': 'O'
+    },
+    
     move: function(cell){
         if(!cell.value()){ 
-           cell.value(vm.user() == 'Tic' ? 'X': 'O')
-           var endpoint = client.getEndpoint({ id: vm.user() == 'Tic' ? 'Tac' : 'Tic' });
-           endpoint.sendMessage({ message : ko.toJSON(vm) });
+           cell.value(vm.moveToken());
+           var toggle = vm.user() == 'Tic' ? 'Tac' : 'Tic';
+           var endpoint = client.getEndpoint({ id: toggle });
+           vm.isMyTurn(false)
+           endpoint.sendMessage({ message : ko.toJSON(vm.board()) });
         }
     }
 }
 
-vm.template = ko.computed(function(){ return vm.connected() ? 'connected-template' : 'diconnected-template'})
+ 
+vm.template = ko.computed(function(){ return vm.connected() ? 'connected-template' : 'disconnected-template'})
 
+vm.solveChecker = function (board) {
+    var self = this;
+
+    var internals = {
+        row: function (row) {
+            if(row.length == 0){return false}
+            
+             var target = row[0].value()
+             
+             if(!target){return false}
+             
+             for (i = 1; i < row.length; ++i) {
+                if (row[i].value() != target) {
+                    //console.log('value fail ' + row[i] + ' vs ' + target)
+                    return false;
+                } 
+            }
+             
+            return {by: target}
+        },
+        column: function (column) {
+            //console.log(board[0][column].value())
+            if(board.length == 0 || !board[0][column]){return false}
+            
+            var target = board[0][column].value()
+            
+            if(!target){return false}
+            
+            for (row = 1; row < board.length; ++row) {
+                 
+                if (board[row][column].value() != target) {
+                   return false;
+                }
+            }
+            return {by: target};
+        },
+         diagonal: function () {
+            
+            if(board.length == 0){return false}
+            
+            //var corners = [{from: [0, 0], to: [board.length, board.length]}, [board.length, board.length], [0,0]]
+            var diagonalRunner = {
+                up: function() {
+                 
+                  var target = board[0][0] ? board[0][0].value() : ''
+                  if(!target){return false}
+                  for(var i = 1; i < board.length; i++){
+                    
+                    if(board[i][i].value() != target){return false}
+                  }
+                  return {by: target}
+               },
+                down: function(){
+                    var target = board[board.length-1][0] ? board[board.length-1][0].value() : ''
+                     if(!target){return false}
+                  for(var i = 0; i < board.length; i++){
+                    
+                    if(board[board.length - 1 - i][i].value() != target){return false}
+                  }
+                  return {by: target}
+                }
+            }
+             
+            return diagonalRunner.up() || diagonalRunner.down()
+        }
+    }
+    
+    var solution = function(){
+     for(var x = 0; x < board.length; ++x ){
+         //console.log(i)
+        var isRowSolved = internals.row(board[x])
+        var isColumnSolved = internals.column(x)
+        var isDiagonalSolved = internals.diagonal()
+        //console.log(isDiagonalSolved)
+        var solution = isRowSolved || isColumnSolved || isDiagonalSolved
+        if(solution){
+            console.log("Solution " + x)
+             console.log(solution)
+            return solution;
+        }
+        
+         
+             
+        }
+    }
+    return solution();
+  }
+
+ vm.gameOver = ko.computed(function(){
+    
+    var board = vm.board()
+    
+    var result = vm.solveChecker(board)
+    
+    if(result && result.by){
+        vm.winner(result.by == vm.moveToken())
+        return true
+    } 
+    return false;
+ 
+})
+     
 ko.applyBindings(vm)
  
 
 // listen for incoming messages
 client.listen('message', function(evt) {
-    var tmp = ko.mapping.fromJSON(evt.message.message);
-    console.log(tmp)
-    vm.board(tmp.board());
+    console.log(evt.message.message)
+    vm.board(ko.mapping.fromJSON(evt.message.message)())
+    
+    vm.isMyTurn(true)
+    
+    console.log(vm.board())
+     
 });
 
   </script>
