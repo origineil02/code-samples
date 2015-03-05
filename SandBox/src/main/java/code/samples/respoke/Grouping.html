@@ -19,8 +19,10 @@
       <button type='button' data-bind="click: disconnect">Leave</button>
     <!-- /ko -->
     <ul data-bind='foreach: members'>
-        <li><span data-bind="text: $data"></span></li>
+        <li><span data-bind="text: endpointId"></span></li>
     </ul>
+    
+    <span data-bind="text: ko.toJSON($data)"></span>
     <script>
        
        
@@ -45,34 +47,23 @@
           self.connected(false)
           self.members([])
         },
-        onConnection: function(self){
+        onConnection: function(){
             console.log('on connect')
-            console.log(this)
+            var self=this;
             self.client.join({
                 id: 'everyone'
             }).then(function (group) {
+              console.log("Group")
+              console.log(group)
                 self.group = group;
-                self.group.listen('join', function(evt) {self.onMemberJoin(evt, self)});
-                self.group.listen('leave', function(evt){self.updateUI(self)})
-                self.updateUI(self)
+                self.group.listen('join', function(evt) {self.members.push(evt.connection)});
+                self.group.listen('leave', function(evt) {self.members.remove(evt.connection)})//self.members.remove(evt.target)});
+                group.getMembers().then( function(args){
+                 self.members(ko.utils.arrayFilter(args, function(item) {
+                  return item.endpointId != self.user()
+                  }))
+                } )
             }); 
-        },
-        updateUI: function(self){
-             self.group.getMembers().then(function(args){
-                  args = args.map(function(item) {
-                    if(item.endpointId != self.user()){
-                      return item.endpointId;
-                    }
-                  })
-                  console.log(args)
-                  self.members(args)
-                });
-        },
-        onMemberJoin: function(evt, self){
-            console.log('Member joined')
-            console.log(self)
-            console.log(evt)
-            self.members.push(evt.connection.endpointId)
         },
         connect: function(){
             console.log("Connect Request")
@@ -80,7 +71,7 @@
             
             self.client.connect({
               endpointId: self.user()
-            }).done(function(){self.connected(true); self.onConnection(self)})  
+            }).done(function(){self.connected(true); self.onConnection()})  
         },
               
     })
