@@ -20,7 +20,19 @@
        background: url(http://www.dovevision.org/admin_controller/generalItem/Video_MessageImages/34.jpg) -50px;
     }
     
+    .accept {
+      background: url(http://thumb9.shutterstock.com/display_pic_with_logo/2343524/198506546/stock-vector-tick-and-cross-icons-198506546.jpg) -257px -102px;
+      width: 55px;
+      height: 55px;
+    }
    
+    .decline {
+        background: url(http://thumb9.shutterstock.com/display_pic_with_logo/2343524/198506546/stock-vector-tick-and-cross-icons-198506546.jpg) -366px -285px;
+        width: 55px;
+        height: 55px;
+          
+    }
+    
     .xToken{
       width: 100px;
       height: 95px;
@@ -71,17 +83,34 @@
 <script type="text/html" id="lobby-template">
     <h2 data-bind='text: "Welcome, " + user.id()'></h2>
    <br/>
+   <div style='width: 100%'>
    <!-- ko if: user.connected -->
       <button type='button' data-bind="click: service.disconnect">Leave</button>
     <!-- /ko -->
+   </div>
+    <div style='float:left; '>
     <table data-bind='foreach: lobby.members'>
        <tr data-bind='ifnot: $root.user.id() == endpointId'>
            <td class='clickable tile' data-bind='text: endpointId, click: function(){$root.invite($root, endpointId)} '></td></tr>
     </table>
-
-    <ul data-bind='foreach: user.openInvitations'>
-        <li>Invitation to play a game from <span data-bind='text: endpointId'></span><button data-bind='click: function(){$root.user.acceptInvitation($root, $data)}'>Accept</button></li>
+    </div>
+    <div style='float:left'>
+    <ul style='list-style-type: none' data-bind='foreach: user.openInvitations'>
+        <li>
+                <h5 data-bind="text: 'Invitation from ' + endpointId() "></h5>
+                <table>
+                 <tr> 
+                   <td>
+                    <div style='float: left'class='accept' data-bind='click: function(){$root.user.acceptInvitation($root, $data)}'></div>
+                   </td>
+                   <td>
+                    <div style='clear: left'class='decline' data-bind='click: function(){$root.user.declineInvitation($root, $data)}'></div>
+                   </td>
+                  </tr>
+                </table>    
+                </li>
     </ul>
+    </div>
 </script>
 
 <script type="text/html" id="connected-template">   
@@ -96,6 +125,7 @@
                 <tr>
                     <td>
                         <div data-bind='if: isGameOver'>
+                          <button data-bind="click:$root.exitGame">Back to lobby</button>
                           <div data-bind="template: { name: winner() ? 'win-template' : 'lost-template', data: $data}"></div>
                         </div>
                         <div data-bind='ifnot: isGameOver'>
@@ -215,7 +245,9 @@ var ServiceController = new Class({
        addInvitation: function(details){
            this.openInvitations.push(details)
        },
-       
+       declineInvitation: function(self, invitation){
+           self.user.openInvitations.remove(invitation)
+       },
        acceptInvitation: function(self, invitation){
            
            self.user.openInvitations.remove(invitation)
@@ -551,6 +583,10 @@ var VM = new Class({
        }[obj.type()]
        
        if(handler){handler(obj)}
+   },
+   exitGame: function(){
+      this.user.opponent(null)
+      this.board(init())
    }
   });
 
