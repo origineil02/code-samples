@@ -99,13 +99,13 @@
                           <div data-bind="template: { name: winner() ? 'win-template' : 'lost-template', data: $data}"></div>
                         </div>
                         <div data-bind='ifnot: isGameOver'>
-                          <div data-bind='if: !isMyTurn()'>Awaiting opponent move...</div>
+                          <div data-bind='if: !$root.user.isMyTurn()'>Awaiting opponent move...</div>
                           <table  data-bind='foreach: board'>
                            <tr  data-bind='foreach: $data'>
                              <td>
-                                 <button class='tile' data-bind='disable: value() || !$root.isMyTurn() ,
-                                            click: $root.move, 
-                                            css: { clickable: !value() && $root.isMyTurn(), available: !value() && $root.isMyTurn(), xToken: value() == "X", oToken: value() == "O"}'>
+                                 <button class='tile' data-bind='disable: value() || !$root.user.isMyTurn() ,
+                                            click: function(){$root.move($root, $data)}, 
+                                            css: { clickable: !value() && $root.user.isMyTurn(), available: !value() && $root.user.isMyTurn(), xToken: value() == "X", oToken: value() == "O"}'>
                                  </button>                          
                              </td>
                             </tr>
@@ -188,13 +188,14 @@ var ServiceController = new Class({
               endpointId: self.user.id()
             }).done(function(){self.user.onConnected(self.client)})  
         },
-        join: function(id){
-            this.APP.client.join({id: id})
+        join: function(id, cb){
+            this.APP.client.join({id: id}).then(cb)
         },
         listen: function(key, cb){
             this.APP.client.listen(key, cb)
         },
         message: function(id, message){
+           console.log("Sending " + id + " a message")
            var endpoint = this.APP.client.getEndpoint({ id: id });
            endpoint.sendMessage({message: ko.toJSON(message)})
         }
@@ -207,7 +208,9 @@ var ServiceController = new Class({
          this.moveToken = ko.observable();
          this.connected = ko.observable(false);
          this.opponent = ko.observable();
-         this.openInvitations = ko.observableArray([])
+         this.openInvitations = ko.observableArray([]);
+         this.isMyTurn= ko.observable(false)
+                 
        },
        addInvitation: function(details){
            this.openInvitations.push(details)
@@ -218,12 +221,18 @@ var ServiceController = new Class({
            self.user.openInvitations.remove(invitation)
            
            var uuid = new UUID().value;
-           console.log(uuid)
-           self.user.opponent({group: uuid, opponent: invitation.endpointId})
-           self.service.join( uuid )
+           //console.log(uuid)
+           self.user.opponent({group: uuid, id: invitation.endpointId()})
+           //self.service.join( uuid )
            
            console.log('Accepting invitation from ' + invitation.endpointId() )
-           self.service.message(invitation.endpointId(), {type: 'start', group: uuid})
+           
+           //init game state
+           var first = Math.floor((Math.random() * 100) + 1) > 50; 
+           self.user.moveToken(first ? 'X' : 'O')
+           self.user.isMyTurn(first)
+           
+           self.service.message(invitation.endpointId(), {type: 'start', group: uuid, first: !first})
             
        },
        onConnected: function(client){
@@ -426,7 +435,7 @@ var VideoController = new Class({
     },
     call: function(){
          var self = this;
-         var recipientEndpoint = client.getEndpoint({ id: self.opponent() });
+         var recipientEndpoint = client.getEndpoint({ id: self.user.opponent().id });
          var result = recipientEndpoint.startVideoCall(self.videoController.callOptions);
          self.videoController.activeCall(result);
     },
@@ -480,16 +489,12 @@ var VM = new Class({
     self.videoController = new VideoController(this);
     self.lobby = new Lobby();
     
-    self.instance = ko.observable(this)
     self.service = new ServiceController(this);
      
     self.board = ko.observableArray(init())
     
     self.user = new User(this);
-     
-    self.isMyTurn = ko.observable(false)
 //    self.toggler = ko.observable(false)
-    self.opponent= ko.observable()
     self.winner = ko.observable(false)
 
     self.isGameOver = ko.computed(function(){
@@ -499,7 +504,7 @@ var VM = new Class({
     
       if(result && result.by){
         console.log(result.by)
-        self.winner(result.by == self.moveToken())
+        self.winner(result.by == self.user.moveToken())
         return true
       } 
       return new DrawChecker(board).isDraw();
@@ -507,7 +512,6 @@ var VM = new Class({
     
     self.reset = function(){
       console.log("Reset")
-      self.instance(new VM())
     }
    },
    invite: function(self, target){ 
@@ -519,6 +523,13 @@ var VM = new Class({
        endpoint.sendMessage({message: ko.toJSON(obj)})
        */
    },
+   move: function(self, cell){
+       console.log("move")
+       cell.value(self.user.moveToken())
+       self.user.isMyTurn(false)
+       var msg = {type: 'move', board: self.board()}
+       self.service.message(self.user.opponent().id, msg)    
+   },
    process: function(obj){
        var self = this;
        var handler = {
@@ -529,8 +540,13 @@ var VM = new Class({
            },
            start: function(details){
                
-               self.service.join(details.group())
-               self.user.opponent({group: details.group(), opponent: details.endpointId()})
+               self.user.moveToken(details.first() ? 'X' : 'O')
+               self.user.isMyTurn(details.first())
+               self.user.opponent({group: details.group(), id: details.endpointId()})
+           },
+           move: function(details){
+               self.user.isMyTurn(true)
+               self.board(details.board())
            }
        }[obj.type()]
        
@@ -539,12 +555,7 @@ var VM = new Class({
   });
 
 var vm = new VM()
-ko.applyBindings(vm.instance())
-
-//client.listen('message', function(evt) {
-//    vm.instance().board(ko.mapping.fromJSON(evt.message.message)())
-//    vm.instance().isMyTurn(true)
-//});
+ko.applyBindings(vm)
 
 client.listen('call', function(evt) {
 
