@@ -243,7 +243,13 @@ var ServiceController = new Class({
                  
        },
        addInvitation: function(details){
-           this.openInvitations.push(details)
+             console.log("Add invitation")
+           var invite = ko.utils.arrayFirst(this.openInvitations(), function(item){
+               return item.endpointId() == details.endpointId() 
+           })
+           console.log(invite)
+          if(!invite){this.openInvitations.push(details)}
+          else{console.log('Ignoring invitation')}
        },
        declineInvitation: function(self, invitation){
            self.user.openInvitations.remove(invitation)
@@ -281,7 +287,7 @@ var ServiceController = new Class({
            APP.lobby.group(group)
            
            group.listen('join',  function(evt) {APP.lobby.add(evt.connection)})
-           group.listen('leave', function(evt) {APP.lobby.remove(evt.connection)}) 
+           group.listen('leave', function(evt) {console.log("group leave evtf"); APP.lobby.remove(evt.connection)}) 
        },
        onInvitation: function(evt){
            console.log('Invitation')
@@ -467,6 +473,7 @@ var VideoController = new Class({
     },
     call: function(){
          var self = this;
+         console.log('Calling ' + self.user.opponent().id )
          var recipientEndpoint = client.getEndpoint({ id: self.user.opponent().id });
          var result = recipientEndpoint.startVideoCall(self.videoController.callOptions);
          self.videoController.activeCall(result);
