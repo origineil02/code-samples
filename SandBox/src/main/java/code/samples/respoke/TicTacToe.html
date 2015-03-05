@@ -176,7 +176,7 @@
   <script>
    var appid = "dc0feacb-13c7-44c8-ad19-0acdd3c6a9dd";
 
-   //respoke.log.setLevel('debug');
+   respoke.log.setLevel('debug');
 var UUID = new Class({
     initialize: function(){
     this.value = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -216,7 +216,8 @@ var ServiceController = new Class({
             var self = this;
             self.client.connect({
               endpointId: self.user.id()
-            }).done(function(){self.user.onConnected(self.client)})  
+            }).done(function(){self.user.onConnected(self.client)}) 
+            self.client.setPresence('available')
         },
         join: function(id, cb){
             this.APP.client.join({id: id}).then(cb)
@@ -286,8 +287,8 @@ var ServiceController = new Class({
            console.log("Group joined")
            APP.lobby.group(group)
            
-           group.listen('join',  function(evt) {APP.lobby.add(evt.connection)})
-           group.listen('leave', function(evt) {console.log("group leave evtf"); APP.lobby.remove(evt.connection)}) 
+           group.listen('join',  function(evt) {evt.target.getMembers().then(function(args){APP.lobby.members(args)})})
+           group.listen('leave', function(evt) {evt.target.getMembers().then(function(args){APP.lobby.members(args)})}) 
        },
        onInvitation: function(evt){
            console.log('Invitation')
@@ -420,17 +421,6 @@ var SolveChecker = new Class({
     }
 });
 
-var client = respoke.createClient({
-    appId: appid,
-    developmentMode: true
-});
-
-client.listen('connect', function () {
-    vm.connected(true)
-});
-
-client.listen('joinedGroup', function(){console.log('notice of new group member')})
-
 function Cell(id){
     return {value: ko.observable('')}
 }
@@ -450,6 +440,7 @@ var VideoController = new Class({
     
     initialize: function(vm){
         var self = this;
+        self.APP = vm;
         self.activeCall = ko.observable(false)
         self.callOptions= {
 //                    constraints: {audio: true, video: true},
@@ -474,11 +465,14 @@ var VideoController = new Class({
     call: function(){
          var self = this;
          console.log('Calling ' + self.user.opponent().id )
-         var recipientEndpoint = client.getEndpoint({ id: self.user.opponent().id });
+         var recipientEndpoint = self.client.getEndpoint({ id: self.user.opponent().id });
          var result = recipientEndpoint.startVideoCall(self.videoController.callOptions);
          self.videoController.activeCall(result);
+         
+         self.client.listen('call', self.videoController.answer)
     },
-    answer: function(call){
+    answer: function(evt){
+        var call = evt.call
         var self = this;
         console.log(self)
          if (call.caller !== true) {
@@ -513,6 +507,12 @@ var Lobby = new Class({
         this.members.push(connection)
     },
     remove: function(connection){
+        
+        ko.utils.arrayForEach(this.members(), function(i){
+            
+            console.log(i)
+            
+        })
         this.members.remove(connection)
     }
     
@@ -600,13 +600,5 @@ var VM = new Class({
 var vm = new VM()
 ko.applyBindings(vm)
 
-client.listen('call', function(evt) {
-
-    console.log('call  ')
-    console.log(evt.call)
-    var call = evt.call
-    vm.videoController.answer(call);
- });
-    
   </script>
 </html>
