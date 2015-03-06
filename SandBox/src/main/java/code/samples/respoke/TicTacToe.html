@@ -121,6 +121,7 @@
     
 <script type="text/html" id="inprogress-template">
     <fieldset style='border-radius: 5px'><legend>Tic Tac Toe</legend>
+        <button data-bind='click: $root.quit'>Quit</button>
             <table>
                 <tr>
                     <td>
@@ -499,27 +500,7 @@ var Lobby = new Class({
             console.log("Group change")
             group.getMembers().then(function(args){console.log(args.length); self.members(args)})
         })
-    },
-    
-    add: function(connection){
-        console.log('Add member')
-        console.log(this.members().length)
-        this.members.push(connection)
-    },
-    remove: function(connection){
-        
-        ko.utils.arrayForEach(this.members(), function(i){
-            
-            console.log(i)
-            
-        })
-        this.members.remove(connection)
     }
-    
-})
-
-var Game = new Class({
-    
 })
 
 var VM = new Class({
@@ -549,18 +530,16 @@ var VM = new Class({
       return new DrawChecker(board).isDraw();
     });
     
-    self.reset = function(){
-      console.log("Reset")
-    }
+   },
+   quit: function(){
+      
+     this.service.message(this.user.opponent().id, {type: 'quit'})  
+     this.user.opponent(null)
+     this.board(init())
    },
    invite: function(self, target){ 
        console.log('inviting ' + target)
        self.service.message(target, {type: 'invitation'})
-       /*
-       var endpoint = self.client.getEndpoint({ id: target });
-       var obj = {type: 'invitation'}
-       endpoint.sendMessage({message: ko.toJSON(obj)})
-       */
    },
    move: function(self, cell){
        console.log("move")
@@ -586,6 +565,11 @@ var VM = new Class({
            move: function(details){
                self.user.isMyTurn(true)
                self.board(details.board())
+           },
+           quit: function(details){
+               alert('Opponent quit the game');
+               self.user.opponent(null);
+               self.board(init())
            }
        }[obj.type()]
        
