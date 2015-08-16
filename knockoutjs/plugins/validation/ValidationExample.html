@@ -1,0 +1,94 @@
+ <html>
+   <script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
+   <script src='https://rawgit.com/ericmbarnard/Knockout-Validation/master/Src/knockout.validation.js'></script>
+
+   <span data-bind='text: "Errors: " + userdata.errors().length'></span>
+
+<div data-bind='foreach: userdata'>
+    <fieldset>
+        <legend data-bind="text: UserName"></legend>
+        <table>
+            <tr>
+                <td>User Number:</td>
+                <td>
+                    <input data-bind='value: UserNumber, valueUpdate: "afterkeydown"'></input>
+                </td>
+            </tr>
+            <tr>
+                <td>Code:</td>
+                <td>
+                    <input data-bind='value: Code, valueUpdate: "afterkeydown"'></input>
+                </td>
+            </tr>
+            <tr>
+                <td>Username:</td>
+                <td>
+                    <input data-bind='value: UserName, valueUpdate: "afterkeydown"'></input>
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+</div>
+   <script>
+   ko.validation.init({
+        grouping: {
+            deep: true,
+            observable: false
+        },
+        insertMessages: true,
+        messagesOnModified: true,
+        debug: false
+    });
+    var UserDataElement = function (dataObj) {
+        dataObj.UserName = ko.observable(dataObj.UserName).extend({
+            pattern: '^[a-zA-Z]*$'
+        })
+
+        dataObj.Code = ko.observable(dataObj.Code).extend({
+            minLength: 4
+        })
+
+        dataObj.UserNumber = ko.observable(parseInt(dataObj.UserNumber)).extend({
+            min: 1,
+            max: 100
+        })
+        return dataObj;
+    }
+
+    var usersViewModel = function () {
+
+        this.userdata = [new UserDataElement({
+            UserNumber: "122",
+            UserName: "Jennifer",
+            Partitions: "01",
+            Code: "2356",
+            Authority: "Standard User",
+            Keyfob: "Keyfob 03",
+            ZwaveLock: false
+        }), new UserDataElement({
+            UserNumber: "13",
+            UserName: "Pinkman",
+            Partitions: "03",
+            Code: "423",
+            Authority: "Guest",
+            Keyfob: "Keyfob 01",
+            ZwaveLock: true
+        }), new UserDataElement({
+            UserNumber: "14",
+            UserName: "Nolan2",
+            Partitions: "02",
+            Code: "1233",
+            Authority: "Standard User",
+            Keyfob: "Keyfob 02",
+            ZwaveLock: "false"
+        })];
+
+    };
+
+    var vm = new usersViewModel()
+
+    ko.validation.group(vm.userdata).showAllMessages()
+
+    ko.applyBindings(vm);               
+   </script>
+ </html>

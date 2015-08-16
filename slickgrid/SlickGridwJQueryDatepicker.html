@@ -1,0 +1,95 @@
+
+<html>
+  
+<link rel="stylesheet" type="text/css" href="http://mleibman.github.io/SlickGrid/slick.grid.css">
+<link rel="stylesheet" type="text/css" href="http://mleibman.github.io/SlickGrid/examples/examples.css">
+<!--<link rel="stylesheet" type="text/css" href="http://jqueryui.com/resources/demos/style.css">-->
+ <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+
+<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+
+<script src="http://mleibman.github.io/SlickGrid/lib/jquery.event.drag-2.2.js"></script>
+<script src="http://mleibman.github.io/SlickGrid/slick.core.js"></script>
+<script src="http://mleibman.github.io/SlickGrid/slick.grid.js"></script>
+<script src="http://mleibman.github.io/SlickGrid/slick.dataview.js"></script>
+<!--<script src="http://mleibman.github.io/SlickGrid/plugins/slick.rowselectionmodel.js"></script>-->
+<style>
+ 
+    .ui-datepicker-calendar {
+        background-color: #A8A8A8 
+    }
+    .ui-datepicker-title {
+        background-color: #606060
+    }
+</style>
+<div id="myGrid" style="width:600px;height:250px;"></div>
+<div hidden><span id='dataDump'></span><button id='debugB'>Debug</button></div>
+<script>
+    
+ var grid;
+ var data = [];
+ 
+ function DateFormatter (row, cell, value, columnDef, dataContext) {
+
+      
+      if(cell %2 ==0 || cell %3 === 0){
+         var id = (cell%2===0 ? "season" : "food") +"DateInput"+row+cell;
+         var bind = function() {
+           console.log(id)
+          $("#" + id).datepicker({showOn: "button", buttonImage: "http://jqueryui.com/resources/demos/images/calendar.gif",buttonImageOnly: true});     
+         }    
+         setTimeout(bind, 250)
+      
+         return '<input type="text" id = "'+id+  '" style="width:60px;" value='+value+'></input>';
+      }
+      return value;
+  }
+  
+ var columns = [
+    {id: "server", name: "Server", field: "server", width: 180}
+  ];
+   
+ for (var i = 1; i <= 4; i++) {
+    columns.push({
+      id: "id" + i,
+      name: "Id" + i,
+      field: i%2===0 ? 'seasonName' : (i%3===0? 'foodName':i),
+      formatter: i%2 === 0 || i%3 === 0 ? DateFormatter : null
+    });
+  }
+
+  var options = {
+    editable: false,
+    forceFitColumns: true,
+    enableCellNavigation: true
+  };
+
+
+  $(function () {
+    for (var i = 1; i <= 5; i++) {
+      var d = (data[i] = {});
+      d.server = "Row " + i;
+      for (var j = 0; j < columns.length; j++) {
+         if(j%3===0){
+               d['foodName'] = Math.round(Math.random() * 10) + "/" + Math.round(Math.random() * 10) + "/2014";
+        }
+                else if(j%2===0){
+            d['seasonName'] = Math.round(Math.random() * 10) + "/" + Math.round(Math.random() * 10) + "/2014";
+        }
+        else {
+          d[j] = Math.round(Math.random() * 100);
+        }
+      }
+    }
+
+    grid = new Slick.Grid("#myGrid", data, columns, options);
+      $("#debugB").click(function(){
+          console.log("clicked")
+          $("#dataDump").text(JSON.stringify(grid.getData()))
+      })
+    });
+</script>
+
+ 
+</html>

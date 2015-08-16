@@ -1,0 +1,39 @@
+ 
+<html>
+  <script src='http://cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min.js'></script>
+
+  <script type="text/html" id="my-template">
+     <!-- ko foreach: companies() -->
+      <li data-bind="visible: $index() < $parent.displayLimit()">
+        <span data-bind='text: $index'></span>
+      </li>
+      <!-- /ko -->
+    </script>
+    
+  <fieldset>
+    <legend>Classic Template</legend>
+    <ul data-bind="template: {name: 'my-template', data: $data}"></ul>
+  </fieldset>
+  <fieldset>
+    <legend>Component</legend>
+    <ul data-bind='component: {name: "my-widget",  params: $data}'></ul>
+  </fieldset>
+  <script>
+    
+    function RelatedCompaniesViewModel(params) {
+    var self = this;
+
+    self.companies = ko.observable(params.companies);
+    self.displayLimit = ko.observable(3);
+
+} 
+
+ko.components.register('my-widget', {
+    viewModel: RelatedCompaniesViewModel,
+    template: { element: 'my-template' }
+});
+
+ko.applyBindings(new RelatedCompaniesViewModel({companies: ["1", "2", "3", "4"]}))
+
+  </script>
+</html>

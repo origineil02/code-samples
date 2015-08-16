@@ -1,0 +1,133 @@
+<html>
+  <link rel="stylesheet" type="text/css" href="http://mleibman.github.io/SlickGrid/slick.grid.css">
+  <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+
+  <script src="http://mleibman.github.io/SlickGrid/slick.dataview.js"></script>
+  <script src='http://mleibman.github.io/SlickGrid/lib/jquery.event.drag-2.2.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/slick.core.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/slick.grid.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/slick.groupitemmetadataprovider.js'></script>
+
+  <div id="sampleGrid" style="width:750px;height:500px;"></div>
+  <script>
+    var grid, dataView;
+
+    var columns = [{
+        id: "dealerName",
+        name: "DealerName",
+        field: "DealerName"
+      }, {
+        id: "carline",
+        name: "Carline",
+        field: "Carline"
+      }, {
+        id: "labourOperation",
+        name: "LabourOperation",
+        field: "LabourOperation"
+      }, {
+        id: "projOverspend",
+        name: "ProjOverspend",
+        field: "ProjOverspend",
+        sortable: true,
+        groupTotalsFormatter: sumTotalsFormatter
+      }, ];
+
+    var options = {
+      enableCellNavigation: true,
+      enableColumnReorder: false,
+      displayTotalsRow: false,
+      topPanelHeight: 25,
+      forceFitColumns: true
+    };
+
+    var sortcol = "ProjOverspend";
+    var sortdir = 1;
+
+    function compare(x, y){
+       return (x == y ? 0 : (x > y ? 1 : -1));
+    }
+    function comparer(a, b) {
+      var x = a[sortcol],
+              y = b[sortcol];
+      return compare(x,y)
+    }
+
+    function sumTotalsFormatter(totals, columnDef) {
+      var val = totals.sum && totals.sum[columnDef.field];
+      if (val != null) {
+        return "total: " + val
+      }
+      return "";
+    }
+    ;
+
+    function groupByRegion() {
+      var sum = new Slick.Data.Aggregators.Sum("ProjOverspend");
+      dataView.setGrouping([{
+          getter: "DealerName",
+          formatter: function(g) {
+             
+            return g.value + "  <span style='color:green'>(" + g.count + " items) Projected Overspend: " + g.totals.sum.ProjOverspend + "</span>";
+          },
+          aggregators: [
+            sum
+          ],
+          comparer: function(a, b){
+            var f = function(rows){ sum.init(); for(r in rows){sum.accumulate(rows[r])} return sum.sum_}
+            return compare(f(a.rows), f(b.rows))
+          },
+          aggregateCollapsed: true,
+          lazyTotalsCalculation: false
+        }]);
+    }
+
+    $(function() {
+      var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
+
+      dataView = new Slick.Data.DataView({
+        groupItemMetadataProvider: groupItemMetadataProvider,
+        inlineFilters: true,
+        displayTotalsRow: false,
+      });
+
+      grid = new Slick.Grid("#sampleGrid", dataView, columns, options);
+
+      // register the group item metadata provider to add expand/collapse group handlers
+      grid.registerPlugin(groupItemMetadataProvider);
+      //grid.setSelectionModel(new Slick.CellSelectionModel());
+
+      // Make the grid respond to DataView change events.
+      dataView.onRowCountChanged.subscribe(function(e, args) {
+        grid.updateRowCount();
+        grid.render();
+      });
+
+      dataView.onRowsChanged.subscribe(function(e, args) {
+        
+        
+        grid.invalidateRows(args.rows)
+        grid.render();
+      });
+
+      grid.onSort.subscribe(function(e, args) {
+        sortdir = args.sortAsc ? 1 : -1;
+        sortcol = args.sortCol.field;
+        
+        dataView.sort(comparer, args.sortAsc);
+      });
+
+
+var data = []
+for(i=0; i<25; ++i){
+  data.push({id: i, DealerName: 'Dealer Name'+i%12, Carline: "Line"+i, LabourOperation: 'LO'+i, ProjOverspend: i})
+}
+      dataView.beginUpdate();
+      dataView.setItems(data);
+      groupByRegion();
+      dataView.endUpdate();
+       
+      
+    });
+  </script>
+</html>

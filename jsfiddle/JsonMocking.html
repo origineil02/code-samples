@@ -1,0 +1,34 @@
+ 
+<html>
+    <script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.min.js'></script>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/mootools/1.5.1/mootools-core-full-compat.min.js'></script>
+
+  <div data-bind='foreach: news'>
+    <span data-bind="text: title" ></span>
+  </div>
+
+  <script>
+    var vm = {
+      news: ko.observableArray()
+    }
+
+    ko.applyBindings(vm);
+
+    var rawData = [{title: "Title 1"}, {title: "Title 2"}];
+
+    new Request.JSON({
+       url: '/echo/json/',
+       data: {
+         json: JSON.encode(rawData),
+         delay: 1
+       },
+       onSuccess: function(response) {
+         console.log(response)
+         var data = ko.mapping.fromJS(response);
+         
+         vm.news(data())
+       }
+    }).send();
+  </script>
+</html>

@@ -1,0 +1,36 @@
+<html>
+  
+  <script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
+  <script src='http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.min.js'></script>
+   
+
+  <fieldset>
+    <legend data-bind='text: property'></legend>
+    
+    <div data-bind="foreach: children">
+    : <input data-bind='value: name,valueUpdate: "afterkeydown"'></input> <span data-bind="text: 'Length: ' + $data.nameLength()" ></span> 
+    <br/>
+    </div>
+  </fieldset>
+
+  <script>
+    var childModel = function(data) {
+      ko.mapping.fromJS(data, {}, this);
+
+    this.nameLength = ko.computed(function() {
+      return this.name().length;
+    }, this);
+  }
+
+  var mapping = {
+    'children': {
+        create: function(options) {
+            return new childModel(options.data);
+        }
+    }
+}
+var viewModel = ko.mapping.fromJS({property: "Parent Property", children: [{name: "Name1"}, {name: "Name2"}]}, mapping);
+ko.applyBindings(viewModel)
+  </script>
+</html>
+

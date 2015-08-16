@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
+
+  <script type="text/html" id="render-template">
+    <span data-bind = "text: BillNo" > </span>
+    <a href="javascript:void(null);"  data-bind="click: $root.selectStock">Edit</a >
+  </script>
+  <script type="text/html" id="editor-template">
+    <input data-bind = "value: BillNo" > </input>
+    <a href="javascript:void(null);"   data-bind="click: $root.acceptStock">Accept</a > 
+    <a href = "javascript:void(null);" data-bind = "click: $root.rejectChanges" > Reject </a>
+  </script>
+  <table>
+    <tr>
+      <th>Bill No</th>
+    </tr>
+    <tbody data-bind="foreach:Stocks">
+      <tr>
+        <td>
+          <div data-bind="template: {name:  $root.editing() ? 'editor-template': 'render-template', data: $data}"></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div data-bind='text: debug'></div>
+  <script>
+   var Stock = function (stock) {
+     var self = this;
+     self.BillNo = ko.observable();
+     self.update(stock);
+   }
+
+    Stock.prototype.update = function (stock) {
+    if (!stock) stock = { BillNo: "NA" };
+    this.BillNo(stock.Id || stock.BillNo);
+    }
+
+    var ViewModel = function (serverModel) {
+     var self = this;
+     self.Stocks = ko.observableArray(ko.utils.arrayMap(serverModel.data, function (eachData) {
+            return new Stock(eachData);
+     }));
+     self.editing = ko.observable(false);
+     
+    self.selectStock = function (stock) {
+      stock.cache = ko.toJS(stock)
+      self.editing(true);
+     }
+
+    self.debug = ko.observable(ko.toJSON(self.Stocks))
+
+    self.endEditing = function (stock) {
+     delete stock.cache
+     self.editing(false);
+     self.debug(ko.toJSON(self.Stocks))
+    }
+      
+    self.acceptStock = function (stock) {
+      self.endEditing(stock)
+    }
+
+    self.rejectChanges = function (stock) {
+      stock.update(stock.cache);
+      self.endEditing(stock)
+    }
+  }
+
+  ko.applyBindings(new ViewModel({
+      data: [{
+          Id: 'ABC'
+      }, {
+          Id: '123'
+      }]
+  }))
+  </script>
+</html>

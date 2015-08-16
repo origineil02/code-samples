@@ -1,0 +1,64 @@
+<html>
+  <script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
+  
+  <table>
+    <tr>
+        <td>
+            <fieldset>
+                <legend>Available</legend>
+                <ul data-bind='foreach: available'>
+                    <li> <span data-bind='text: name'></span>
+
+                        <button data-bind='click: $root.toggle'>=></button>
+                    </li>
+                </ul>
+            </fieldset>
+        </td>
+        <td>
+            <fieldset>
+                <legend>Flagged</legend>
+                <ul data-bind='foreach: flagged'>
+                    <li> <span data-bind='text: name'></span>
+
+                        <button data-bind='click: $root.toggle'>X</button>
+                    </li>
+                </ul>
+            </fieldset>
+        </td>
+    </tr>
+</table>
+  
+  <script>
+    var vm = function () {
+    this.items = [{
+        name: 'One',
+        flag: ko.observable(true)
+    }, {
+        name: 'Two',
+        flag: ko.observable(true)
+    }];
+    this.toggle = function () {
+        this.flag(!this.flag())
+    }
+
+    this.available = ko.computed(function () {
+
+        var results = ko.utils.arrayFilter(this.items, function (item) {
+            return item.flag()
+        })
+        return results
+    }, this)
+
+    this.flagged = ko.computed(function () {
+
+        var results = ko.utils.arrayFilter(this.items, function (item) {
+            return !item.flag()
+        })
+
+        return results
+    }, this)
+
+}
+ko.applyBindings(new vm())
+  </script>
+</html>

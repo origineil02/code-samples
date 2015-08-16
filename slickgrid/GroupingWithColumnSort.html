@@ -1,0 +1,93 @@
+<html>
+  <link rel="stylesheet" type="text/css" href="http://mleibman.github.io/SlickGrid/slick.grid.css">
+  <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+
+  <script src="http://mleibman.github.io/SlickGrid/slick.dataview.js"></script>
+  <script src='http://mleibman.github.io/SlickGrid/lib/jquery.event.drag-2.2.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/slick.core.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/slick.grid.js'></script>
+  <script src='http://mleibman.github.io/SlickGrid/slick.groupitemmetadataprovider.js'></script>
+
+  <button id='group' type='button'>Group by State</button>
+  <button id='clearGrouping' type='button'>Clear grouping</button>
+
+  <div id="myGrid" style="width:600px;height:500px;"></div>
+
+  <script>
+    var dataView = new Slick.Data.DataView();
+    $('#clearGrouping').click(function() {
+      dataView.setGrouping([])
+    })
+
+    $("#group").click(function() {
+      dataView.setGrouping({
+        getter: "state",
+        formatter: function(g) {
+          return "" + g.value + " <span style='color:green'>(" + g.count + " items)</span>";
+        },
+        aggregateCollapsed: false,
+        lazyTotalsCalculation: true
+      });
+
+      dataView.setAggregators([new Slick.Data.Aggregators.Sum("data")], true);
+    });
+
+    var columns = [
+      {id: "column1", name: "State", field: "state", sortable: true},
+      {id: "column2", name: "City", field: "city", sortable: true},
+      {id: "column3", name: "Zip", field: "zip", sortable: true}
+    ];
+
+    var options = {
+      enableCellNavigation: true,
+      editable: true,
+      forceFitColumns: true,
+      multiColumnSort: true
+    };
+
+    var grid = new Slick.Grid('#myGrid', dataView, columns, options);
+
+    dataView.onRowCountChanged.subscribe(function(e, args) {
+      grid.updateRowCount();
+      grid.render();
+    });
+
+    dataView.onRowsChanged.subscribe(function(e, args) {
+      grid.invalidateRows(args.rows);
+      grid.render();
+    });
+
+    grid.onSort.subscribe(function(e, args) {
+
+      //args.sortCols.splice(0, 0, {sortCol: columns[0], sortAsc: true})
+      var cols = args.sortCols;
+      
+      dataView.sort(function(dataRow1, dataRow2) {
+        for (var i = 0, l = cols.length; i < l; i++) {
+          var field = cols[i].sortCol.field;
+          var sign = cols[i].sortAsc ? 1 : -1;
+          var value1 = dataRow1[field], value2 = dataRow2[field];
+          var result = (value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign;
+          if (result != 0) {
+            return result;
+          }
+        }
+        return 0;
+      });
+    });
+
+    var data = [
+      {state: 'CA', city: 'Los Angeles', zip: '90014'},
+      {state: 'CA', city: 'Santa Monica', zip: '90401'},
+      {state: 'CA', city: 'Napa', zip: '94558'},
+      {state: 'NY', city: 'Manhattan', zip: '10001'},
+      {state: 'NY', city: 'Buffalo', zip: '14201'},
+      {state: 'HI', city: 'Hilo', zip: '96720'},
+      {state: 'HI', city: 'Hawi', zip: '96719'},
+    ]
+
+    dataView.setItems(data, 'zip');
+
+  </script>
+</html>

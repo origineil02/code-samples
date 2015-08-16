@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "htmlparser": "^1.7.7",
+    "http": "0.0.0",
+    "http-request": "^0.7.0",
+    "soupselect": "^0.2.0",
+    "sys": "0.0.1"
+  }
+}

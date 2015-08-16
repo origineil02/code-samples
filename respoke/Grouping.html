@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     
+</head>
+<body>
+
+    <script src="https://cdn.respoke.io/respoke.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js"></script>
+    <script src='http://knockoutjs.com/downloads/knockout-3.0.0.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mootools/1.5.1/mootools-core-full-compat.js"></script>
+
+    <input data-bind='value: user'></input>
+    <!-- ko ifnot: connected -->
+      <button type='button' data-bind="click: connect">Join</button>
+     <!-- /ko -->
+    <!-- ko if: connected -->
+      <button type='button' data-bind="click: disconnect">Leave</button>
+    <!-- /ko -->
+    <ul data-bind='foreach: members'>
+        <li><span data-bind="text: endpointId"></span></li>
+    </ul>
+    
+    <span data-bind="text: ko.toJSON($data)"></span>
+    <script>
+       
+       
+       //respoke.log.setLevel('debug');
+       
+    var vm = new Class({ 
+        initialize: function(){
+          var self = this;
+          self.user = ko.observable();
+          self.members = ko.observableArray([])
+          self.connected = ko.observable(false);
+          console.log('client')
+          self.client = respoke.createClient({
+           appId: 'dc0feacb-13c7-44c8-ad19-0acdd3c6a9dd',
+           developmentMode: true
+          })
+        },
+        disconnect: function(){
+          var self = this;
+          //self.group.leave({id: self.user()});
+          self.client.disconnect();
+          self.connected(false)
+          self.members([])
+        },
+        onConnection: function(){
+            console.log('on connect')
+            var self=this;
+            self.client.join({
+                id: 'everyone'
+            }).then(function (group) {
+              console.log("Group")
+              console.log(group)
+                self.group = group;
+                self.group.listen('join', function(evt) {self.members.push(evt.connection)});
+                self.group.listen('leave', function(evt) {self.members.remove(evt.connection)})//self.members.remove(evt.target)});
+                group.getMembers().then( function(args){
+                 self.members(ko.utils.arrayFilter(args, function(item) {
+                  return item.endpointId != self.user()
+                  }))
+                } )
+            }); 
+        },
+        connect: function(){
+            console.log("Connect Request")
+            var self = this;
+            
+            self.client.connect({
+              endpointId: self.user()
+            }).done(function(){self.connected(true); self.onConnection()})  
+        },
+              
+    })
+    
+    var v = new vm()
+    ko.applyBindings(v)
+    
+    </script>
+    
+</body>
+</html>

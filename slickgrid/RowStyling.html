@@ -1,0 +1,58 @@
+<html>
+  
+<link rel="stylesheet" type="text/css" href="http://mleibman.github.io/SlickGrid/slick.grid.css">
+<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+
+<script src="http://mleibman.github.io/SlickGrid/lib/jquery.event.drag-2.2.js"></script>
+<script src="http://mleibman.github.io/SlickGrid/slick.core.js"></script>
+<script src="http://mleibman.github.io/SlickGrid/slick.grid.js"></script>
+
+<style>
+  .alternate_row {
+      background: #A8A8A8;
+    }
+</style>
+<div id="myGrid" style="width:600px;height:500px;"></div>
+
+<script>
+    
+  var grid;
+ var data = [];
+ var columns = [
+    {id: "server", name: "Server", field: "server", width: 180}
+  ];
+   
+ for (var i = 0; i < 4; i++) {
+    columns.push({
+      id: "id" + i,
+      name: "Id" + i,
+      field: i
+    });
+  }
+
+  var options = {
+    editable: false,
+    enableAddRow: false,
+    enableCellNavigation: true
+  };
+
+  $(function () {
+    for (var i = 0; i < 5; i++) {
+      var d = (data[i] = {});
+      d.server = "Server " + i;
+      for (var j = 0; j < columns.length; j++) {
+        d[j] = Math.round(Math.random() * 100);
+      }
+    }
+
+      data.getItemMetadata = function(row){
+          return row % 2 == 0 ? {cssClasses: 'alternate_row'} : {}
+      }
+      
+    grid = new Slick.Grid("#myGrid", data, columns, options);
+
+  });
+
+</script>
+</html>
