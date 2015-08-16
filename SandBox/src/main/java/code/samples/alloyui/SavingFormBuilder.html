@@ -1,0 +1,135 @@
+
+<html>
+  <link href="http://cdn.alloyui.com/2.5.0/aui-css/css/bootstrap.min.css" rel="stylesheet"></link>
+
+  <script src="http://cdn.alloyui.com/2.5.0/aui/aui-min.js"></script>
+
+  <button id="debugButton">Debug</button>
+  <div id="myFormBuilder"></div>
+
+
+  <script>
+
+    YUI().use('aui-form-builder', function(Y) {
+       var formBuilder = new Y.FormBuilder(
+                      {
+                        availableFields: [
+                          {
+                            iconClass: 'form-builder-field-icon-text',
+                            id: 'uniqueTextField',
+                            label: 'Text',
+                            readOnlyAttributes: ['name'],
+                            type: 'text',
+                            unique: true,
+                            width: 75
+                          },
+                          {
+                            hiddenAttributes: ['tip'],
+                            iconClass: 'form-builder-field-icon-textarea',
+                            label: 'Textarea',
+                            type: 'textarea'
+                          },
+                          {
+                            iconClass: 'form-builder-field-icon-checkbox',
+                            label: 'Checkbox',
+                            type: 'checkbox'
+                          },
+                          {
+                            iconClass: 'form-builder-field-icon-button',
+                            label: 'Button',
+                            type: 'button'
+                          },
+                          {
+                            iconClass: 'form-builder-field-icon-select',
+                            label: 'Select',
+                            type: 'select'
+                          },
+                          {
+                            iconClass: 'form-builder-field-icon-radio',
+                            label: 'Radio Buttons',
+                            type: 'radio'
+                          },
+                          {
+                            iconClass: 'form-builder-field-icon-fileupload',
+                            label: 'File Upload',
+                            type: 'fileupload'
+                          },
+                          {
+                            iconClass: 'form-builder-field-icon-fieldset',
+                            label: 'Fieldset',
+                            type: 'fieldset'
+                          }
+                        ],
+                        boundingBox: '#myFormBuilder',
+                        fields: [
+                          {
+                            label: 'City',
+                            options: [
+                              {
+                                label: 'Ney York',
+                                value: 'new york'
+                              },
+                              {
+                                label: 'Chicago',
+                                value: 'chicago'
+                              }
+                            ],
+                            predefinedValue: 'chicago',
+                            type: 'select'
+                          },
+                          {
+                            label: 'Colors',
+                            options: [
+                              {
+                                label: 'Red',
+                                value: 'red'
+                              },
+                              {
+                                label: 'Green',
+                                value: 'green'
+                              },
+                              {
+                                label: 'Blue',
+                                value: 'blue'
+                              }
+                            ],
+                            type: 'radio'
+                          }
+                        ]
+                      }
+              ).render();
+      
+   Y.one("#debugButton").on("click", function(){
+    var formDefinition = [];
+
+    var parser = function(fields, container) {
+      fields.each(function(item, index) {
+        var surveyElement = {};
+        var properties = item.getProperties();
+
+        properties.forEach(function(property) {
+          var attr = property.attributeName;
+          surveyElement[attr] = item.get(attr);
+        })
+        surveyElement.name = item.get('name');
+
+        var children = item.getAttrs()['fields']
+        if (children && children.size() > 0) {
+          surveyElement.children = [];
+          parser(children, surveyElement.children);
+        }
+
+        container.push(surveyElement);
+      });
+    };
+
+    parser(formBuilder.get('fields'), formDefinition);
+    var json = JSON.stringify(formDefinition)
+    
+    console.log(json)
+  });
+  
+            }
+    );
+</script>
+</html>

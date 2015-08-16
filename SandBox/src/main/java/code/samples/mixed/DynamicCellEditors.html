@@ -1,0 +1,90 @@
+<html>
+  <link rel="stylesheet" type="text/css" href="http://mleibman.github.io/SlickGrid/slick.grid.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min.js"></script>
+  <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+  <script src="http://JLynch7.github.io/SlickGrid/slick.dataview.js"></script>
+  <script src='http://mleibman.github.io/SlickGrid/lib/jquery.event.drag-2.2.js'></script>
+  <script src='http://JLynch7.github.io/SlickGrid/slick.core.js'></script>
+  <script src='http://JLynch7.github.io/SlickGrid/slick.grid.js'></script>
+  <script src='http://JLynch7.github.io/SlickGrid/slick.formatters.js'></script>
+  <script src='http://JLynch7.github.io/SlickGrid/slick.editors.js'></script>
+
+  <body>
+
+    <div id='container'>
+      <div id="myGrid" style="width:600px;height:300px;"></div>
+    </div>
+    <script>
+      var viewModel = {options: ['LongText', 'Text', 'Checkbox']}
+
+      function apply() {
+        var grid, data = [];
+
+        var options = {
+          editable: true,
+          enableCellNavigation: true,
+          asyncEditorLoading: false,
+          autoEdit: true,
+          forcefitColumns: false
+
+        };
+
+        var columns = [{
+            id: "data",
+            name: "Editor Type",
+            field: "type",
+            width: 120,
+            cssClass: "cell-title",
+            formatter: function(row) {
+              var key = 'input' + row;
+
+              if (!viewModel[key]) {
+                viewModel[key] = ko.observable();
+                viewModel[key].subscribe(function(nv) {
+
+                  data[row].type = nv
+                })
+              }
+
+              setTimeout(function() {
+                ko.applyBindings(viewModel, document.getElementById(key))
+              }, 250);
+              return '<select id="' + key + '", data-bind="options: options, value: ' + key + '"></select>'
+            }
+          },
+          {
+            id: "other",
+            name: "Other",
+            field: "other",
+            width: 120,
+            cssClass: "cell-title",
+          }];
+
+        for (var i = 0; i < 5; i++) {
+          var d = (data[i] = {});
+
+          d["type"] = "";
+          d["other"] = "Default " + i;
+        }
+
+        grid = new Slick.Grid("#myGrid", data, columns, options);
+        //ko.applyBindings(viewModel)
+
+        data.getItemMetadata = function(row) {
+
+          var rowData = data[row]
+          //console.log(rowData)
+          var metaData = {columns: {other: {}}}
+          metaData.columns.other.editor = Slick.Editors[rowData.type]
+
+          return metaData
+        }
+
+      }
+
+      apply()
+    </script>
+  </body>
+</html>

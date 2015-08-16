@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Work Experience</title>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharts.com/highcharts-more.js"></script>
+    <script src="http://code.highcharts.com/modules/data.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+  </head>
+  <body>
+    <div id="container" style="min-width: 420px; max-width: 750px; height: 500px; margin: 0 auto"></div>
+
+    <script>
+      $(function() {
+
+        var data = [
+          {Java: 6.5},
+          {Javascript: 4},
+          
+          {Liferay: 1},
+          {Hibernate: 1},
+          {XSLT: 4},
+          
+          {Maven: 4},
+          {Ant: 3},
+          
+          {'REST Services': 3},
+          {Spring: 2},
+          
+          {NetBeans: 6.5},
+          {Eclipse: 1},
+          
+          {Knockout: 3},
+          {Slickgrid: 3},
+          {jQuery: 3},
+          {'AlloyUI': 1},
+          {'YUI3': 1},
+          {'JSON': 4},
+          {'MooTools': 3},
+          
+          {'Atlassian Tools': 5},
+          {'Data Visualization': 6.5},
+          {'Agile/Scrum': 3},
+          
+          {Jenkins: 5},
+          
+          {JUnit: 6},
+          {Mockito: 4},
+          {Selenium: 3},
+          
+          {Glassfish: 6},
+          {Tomcat: 1},
+          {Weblogic: 1},
+          
+          {'*nix : (Ubuntu)' : 5},
+          {Windows: 1},
+          
+          {Git : 2},
+          {Mecurial : 1},
+          {SVN : 4}
+        ]
+        var vm = {
+          experience: function() {
+            return 6.5
+          },
+          headers: function() {
+            var tmp = [null]
+            for (d in data) {
+              tmp.push(Object.keys(data[d])[0])
+            }
+            return tmp
+          },
+          columns: function() {
+            var tmp = [];
+            tmp.push(this.headers())
+            for (i = 0; i < data.length; ++i) {
+              tmp.push(this.series(i))
+            }
+
+            return tmp;
+          },
+          series: function(index) {
+            var tmp = [this.headers()[index + 1]]
+            var headers = this.headers();
+
+            for (d in data) {
+
+              var obj = data[d]
+              var key = Object.keys(obj)[0]
+              tmp.push(index == d ? (100 * obj[key] / vm.experience()) : 0)
+
+            }
+
+            return tmp;
+          }
+        }
+
+        $('#container').highcharts({
+          data: {
+            columns: vm.columns(),
+          },
+          chart: {
+            polar: true,
+            type: 'column'
+          },
+          credits: {enabled: false},
+          title: {
+            text: 'Professional Experience'
+          },
+          subtitle: {
+            text: ''
+          },
+          pane: {
+            size: '95%'
+          },
+          legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            y: 7,
+            layout: 'vertical'
+          },
+          xAxis: {
+            tickmarkPlacement: 'on'
+          },
+          yAxis: {
+            min: 0,
+            endOnTick: false,
+            showLastLabel: true,
+            labels: {
+              formatter: function() {
+                return (this.value * vm.experience() / 100).toPrecision(2) + ' years';
+              }
+            },
+            reversedStacks: false
+          },
+          tooltip: {
+            formatter: function() {
+
+              var years = (this.y * vm.experience() / 100).toPrecision(2);
+
+              return 'My experience with <b>' + vm.headers()[this.x + 1] +
+                      '</b> is <b>' + years + ' years</b>';
+            }
+          },
+          plotOptions: {
+            series: {
+              stacking: 'normal',
+              shadow: false,
+              groupPadding: 0,
+              pointPlacement: 'on'
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

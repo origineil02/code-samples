@@ -1,0 +1,71 @@
+<html>
+  
+<link rel="stylesheet" type="text/css" href="http://mleibman.github.io/SlickGrid/slick.grid.css">
+<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+
+<script src="http://mleibman.github.io/SlickGrid/lib/jquery.event.drag-2.2.js"></script>
+<script src="http://mleibman.github.io/SlickGrid/slick.core.js"></script>
+<script src="http://mleibman.github.io/SlickGrid/slick.grid.js"></script>
+<script src="http://mleibman.github.io/SlickGrid/slick.dataview.js"></script>
+
+<style>
+  .my_highlighter_style {
+      background: pink;
+    }
+</style>
+<div id="myGrid" style="width:600px;height:500px;"></div>
+
+<script>
+    
+ var grid;
+ var data = [];
+ var columns = [
+    {id: "server", name: "Server", field: "server", width: 180}
+  ];
+   
+ for (var i = 0; i < 4; i++) {
+    columns.push({
+      id: "id" + i,
+      name: "Id" + i,
+      field: i
+    });
+  }
+
+  var options = {
+    editable: false,
+    enableAddRow: false,
+    enableCellNavigation: true
+  };
+
+
+  $(function () {
+    for (var i = 0; i < 5; i++) {
+      var d = (data[i] = {});
+      d.server = "Server " + i;
+      for (var j = 0; j < columns.length; j++) {
+        d[j] = Math.round(Math.random() * 100);
+      }
+    }
+
+    grid = new Slick.Grid("#myGrid", data, columns, options);
+
+      grid.onMouseEnter.subscribe(function(e, args){
+        var cell = grid.getCellFromEvent(e),
+            param = {},
+            columnCss = {};
+          
+          for(index in columns){
+              var id = columns[index].id;
+              columnCss[id] = 'my_highlighter_style'
+          }
+          param[cell.row] = columnCss
+          args.grid.setCellCssStyles("row_highlighter", param);
+      })
+      
+        grid.onMouseLeave.subscribe(function(){
+         console.log("Still firing")
+      })
+  });
+</script>
+</html>
